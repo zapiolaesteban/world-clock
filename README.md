@@ -1,2 +1,2 @@
 # world-clock
-World Clock &amp; Time Projector
+World Clock &amp; Time Finder
