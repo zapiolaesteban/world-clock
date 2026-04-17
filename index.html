@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0c0c0a" id="tc">
+<meta name="mobile-web-app-capable" content="yes">
+<title>World Clock</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiV29ybGQgQ2xvY2siLCJzaG9ydF9uYW1lIjoiQ2xvY2siLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBjMGMwYSIsInRoZW1lX2NvbG9yIjoiIzBjMGMwYSJ9">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0c0c0a;--sf:#141412;--card:#1a1a18;--inp:#222220;--hover:#2a2a27;--dd:#222220;
+--tx:#e5e3dd;--mid:#b0ada6;--mu:#706e69;--fa:#4a4946;
+--bd:#2a2a27;--bdL:#1e1e1c;
+--ac:#5DCAA5;--acBg:#0d2b20;--acTx:#9FE1CB;
+--btn:#e5e3dd;--btnTx:#0c0c0a;--pl:#222220;--plTx:#706e69;
+--tileTop:#5DCAA5;--nowBg:#141412;--wBg:#222220;
+--dSbg:#0d2b20;--dSc:#9FE1CB;--dPbg:#2e2510;--dPc:#FAC775;--dNbg:#0c2640;--dNc:#85B7EB;
+}
+.light{
+--bg:#ffffff;--sf:#f5f4f0;--card:#ffffff;--inp:#ffffff;--hover:#eeedea;--dd:#ffffff;
+--tx:#1a1a18;--mid:#5f5e5a;--mu:#888780;--fa:#b4b2a9;
+--bd:#e5e3dd;--bdL:#f0eeea;
+--ac:#1D9E75;--acBg:#E1F5EE;--acTx:#085041;
+--btn:#1a1a18;--btnTx:#fff;--pl:#f0eeea;--plTx:#888780;
+--tileTop:#1D9E75;--nowBg:#f0eeea;--wBg:#f5f4f0;
+--dSbg:#E1F5EE;--dSc:#085041;--dPbg:#FAEEDA;--dPc:#633806;--dNbg:#E6F1FB;--dNc:#0C447C;
+}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);transition:background .3s,color .3s;-webkit-tap-highlight-color:transparent;min-height:100vh;min-height:100dvh}
+.wrap{max-width:760px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),16px) 16px calc(max(env(safe-area-inset-bottom,0px),16px) + 16px)}
+.mono{font-family:'DM Mono',monospace}
+
+.header{display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--bd);margin-bottom:18px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ac);flex-shrink:0;animation:pulse 2.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(93,202,165,.4)}50%{box-shadow:0 0 0 5px rgba(93,202,165,0)}}
+.hflag{font-size:15px;flex-shrink:0}
+.hcity{font-size:15px;font-weight:500;white-space:nowrap}
+.htime{font-size:15px;font-weight:500;white-space:nowrap}
+.hdate{font-size:12px;color:var(--mu);flex:1;text-align:right;min-width:60px}
+.hw{font-size:13px;color:var(--mu);display:flex;align-items:center;gap:3px;white-space:nowrap}
+.hw span:first-child{font-size:15px}
+.tbtn{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px;cursor:pointer;color:var(--mu);display:flex;align-items:center;flex-shrink:0;min-width:36px;min-height:36px;justify-content:center;transition:border-color .15s}
+.tbtn:hover{border-color:var(--mu)}
+.tbtn:active{transform:scale(.95)}
+
+.proj{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px 16px 14px;margin-bottom:18px}
+.proj-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.proj-label{font-size:11px;font-weight:500;color:var(--mu);letter-spacing:.06em;text-transform:uppercase}
+.rbtn{font-size:11px;padding:6px 12px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--ac);cursor:pointer;font-weight:500;font-family:inherit;min-height:32px;transition:all .15s}
+.rbtn:hover{background:var(--acBg);border-color:var(--ac)}
+.rbtn:active{transform:scale(.96)}
+.proj-cards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:stretch}
+.pcard{flex:1 1 140px;min-width:130px;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
+.pcard-now{background:var(--nowBg)}
+.pcard-to{background:var(--card);border:1.5px solid var(--ac)}
+.pcard-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.pcard-lbl-muted{color:var(--fa)}.pcard-lbl-ac{color:var(--ac);font-weight:500}
+.pcard-time{font-size:28px;font-weight:500;line-height:1.1}
+.pcard-tz{font-size:12px;color:var(--mu);font-weight:400;margin-left:4px}
+.pcard-date{font-size:11px;color:var(--fa);margin-top:3px}
+.pcard-inp{width:100%;padding:2px 0;border:none;font-size:28px;font-weight:500;color:var(--tx);background:transparent;outline:none;line-height:1.1;color-scheme:dark}
+.pcard-inp::-webkit-calendar-picker-indicator{opacity:0;width:0;height:0;margin:0;padding:0;position:absolute}
+.pcard-inp::-webkit-datetime-edit-ampm-field{text-transform:lowercase}
+.light .pcard-inp{color-scheme:light}
+.presets{display:flex;gap:5px;flex-wrap:wrap}
+.pbtn{font-size:11px;padding:6px 11px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--mid);cursor:pointer;font-weight:500;font-family:inherit;transition:all .15s;min-height:32px}
+.pbtn:active{transform:scale(.95)}
+.pbtn.on{border-color:var(--ac);background:var(--acBg);color:var(--acTx)}
+
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:22px}
+@media(max-width:480px){.tiles{grid-template-columns:1fr}}
+.tile{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 14px 12px;border-top:2.5px solid var(--tileTop);display:flex;flex-direction:column;min-height:170px}
+.tile-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;gap:6px}
+.tile-info{min-width:0;flex:1}
+.tile-name{display:flex;align-items:center;gap:5px}
+.tile-name span:first-child{font-size:15px;flex-shrink:0}
+.tile-name span:last-child{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile-sub{font-size:11px;color:var(--fa);margin-top:2px}
+.tile-w{text-align:right;flex-shrink:0;background:var(--wBg);border-radius:8px;padding:6px 8px;min-width:64px}
+.tile-w-row{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.tile-w-icon{font-size:20px;line-height:1}.tile-w-temp{font-size:15px;font-weight:500}
+.tile-w-cond{font-size:10px;color:var(--mu);margin-top:2px}
+.tile-proj-lbl{font-size:10px;color:var(--ac);font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.tile-proj-time{font-size:24px;font-weight:500;line-height:1.15;letter-spacing:-.02em}
+.tile-ampm{font-size:14px;font-weight:400;margin-left:1px}
+.tile-proj-tz{font-size:12px;color:var(--mu);font-weight:400}
+.tile-gmt{color:var(--fa);font-size:10px}
+.badge{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:500;display:inline-block;margin-top:3px}
+.badge-s{background:var(--dSbg);color:var(--dSc)}.badge-p{background:var(--dPbg);color:var(--dPc)}.badge-n{background:var(--dNbg);color:var(--dNc)}
+.tile-now{margin-top:auto;padding-top:8px}
+.tile-now-inner{border-top:1px solid var(--bdL);padding-top:8px}
+.tile-now-lbl{font-size:10px;color:var(--fa);letter-spacing:.04em;text-transform:uppercase}
+.tile-now-time{font-size:14px;font-weight:500;color:var(--mid)}
+.tile-now-tz{font-size:11px;color:var(--fa);font-weight:400}
+.tile-now-date{font-size:11px;color:var(--fa)}
+
+.composer{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px 16px 16px;margin-bottom:18px}
+.composer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:500;background:var(--card);border:1px solid var(--bd);color:var(--tx);white-space:nowrap;min-height:34px}
+.chip-tz{font-size:10px;color:var(--mu)}
+.chip-x{background:none;border:none;color:var(--fa);font-size:16px;cursor:pointer;padding:0 0 0 4px;line-height:1;min-width:20px;min-height:20px;display:flex;align-items:center;justify-content:center}
+.chip-x:hover{color:#E24B4A}
+.chip-add-wrap{position:relative;display:inline-block}
+.chip-add{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:8px;font-size:12px;font-weight:500;background:transparent;border:1px dashed var(--bd);color:var(--ac);cursor:pointer;white-space:nowrap;min-height:34px;transition:all .15s}
+.chip-add:hover{border-color:var(--ac);background:var(--acBg)}
+.chip-add:active{transform:scale(.96)}
+.chip-dd{position:absolute;top:100%;left:0;margin-top:6px;min-width:180px;background:var(--dd);border:1px solid var(--bd);border-radius:8px;z-index:20;overflow:hidden;max-height:220px;overflow-y:auto}
+@media(max-width:480px){.chip-dd{left:auto;right:0}}
+.chip-dd-item{padding:10px 12px;cursor:pointer;font-size:13px;color:var(--tx);border-bottom:1px solid var(--bdL);display:flex;align-items:center;gap:6px;min-height:40px}
+.chip-dd-item:last-child{border-bottom:none}
+.chip-dd-item:hover{background:var(--hover)}
+
+.copy-opts{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.opt-group{display:flex;align-items:center;gap:6px}
+.opt-label{font-size:10px;color:var(--fa);text-transform:uppercase;letter-spacing:.05em;margin-right:2px;white-space:nowrap}
+.opt-pill{font-size:11px;padding:6px 12px;border:1px solid var(--bd);border-radius:6px;background:transparent;color:var(--mid);cursor:pointer;font-weight:500;font-family:inherit;transition:all .15s;white-space:nowrap;min-height:32px}
+.opt-pill.on{background:var(--acBg);color:var(--acTx);border-color:var(--ac)}
+.opt-pill:active{transform:scale(.95)}
+.flag-btn{display:flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;color:var(--mid);white-space:nowrap;padding:6px 12px;border-radius:6px;border:1px solid var(--bd);background:transparent;font-weight:500;font-family:inherit;transition:all .15s;min-height:32px}
+.flag-btn.on{background:var(--acBg);color:var(--acTx);border-color:var(--ac)}
+.flag-btn:active{transform:scale(.95)}
+
+.copy-preview{font-size:14px;color:var(--tx);font-weight:500;padding:14px 16px;background:var(--card);border:1px solid var(--bd);border-radius:10px;margin-bottom:12px;line-height:1.7;word-break:break-word;min-height:50px;user-select:all;-webkit-user-select:all}
+.copy-empty{font-size:13px;color:var(--fa);padding:14px 0}
+.copy-actions{display:flex;gap:10px;align-items:center}
+.copy-btn{padding:10px 20px;border-radius:8px;border:1.5px solid var(--ac);background:var(--acBg);color:var(--acTx);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;transition:all .15s;min-height:42px}
+.copy-btn:hover{background:var(--ac);color:#fff}
+.copy-btn:active{transform:scale(.97)}
+.copy-btn.copied{background:var(--ac);color:#fff}
+.copy-hint{font-size:11px;color:var(--fa);flex:1}
+
+.wstrip{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding:10px 12px;background:var(--sf);border-radius:8px;gap:8px;flex-wrap:wrap}
+.wstrip span{font-size:11px;color:var(--fa)}
+.section-lbl{font-size:11px;font-weight:500;color:var(--mu);letter-spacing:.06em;text-transform:uppercase}
+.add-row{display:flex;gap:8px;margin-bottom:12px}
+.add-row input{flex:1;padding:10px 12px;border:1px solid var(--bd);border-radius:8px;font-size:14px;background:var(--inp);color:var(--tx);outline:none;font-family:inherit;min-height:42px}
+.add-row input::placeholder{color:var(--fa)}
+.add-row button{padding:10px 16px;border-radius:8px;border:none;background:var(--btn);color:var(--btnTx);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;min-height:42px;transition:opacity .15s}
+.add-row button:active{opacity:.8}
+.dd-list{position:absolute;top:100%;left:0;right:0;margin-top:4px;background:var(--dd);border:1px solid var(--bd);border-radius:8px;z-index:10;overflow:hidden}
+.dd-item{padding:10px 14px;cursor:pointer;font-size:14px;color:var(--tx);border-bottom:1px solid var(--bdL);display:flex;align-items:center;gap:8px;min-height:42px}
+.dd-item:last-child{border-bottom:none}
+.dd-item:hover{background:var(--hover)}
+.extra-row{display:flex;align-items:center;padding:12px 0;gap:8px;border-bottom:1px solid var(--bdL)}
+.extra-row:last-child{border-bottom:none}
+.xname{flex:1 1 90px;min-width:0;display:flex;align-items:center;gap:6px}
+.xname-flag{font-size:14px;flex-shrink:0}
+.xname-text{min-width:0}.xname-city{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.xname-off{font-size:11px;color:var(--fa)}
+.xcol{text-align:right;flex-shrink:0}.xcol-lbl{font-size:10px;color:var(--fa);text-transform:uppercase}
+.xcol-now{min-width:72px}.xcol-proj{min-width:76px}
+.xcol-now .xcol-val{font-size:13px;font-weight:500;color:var(--mid)}
+.xcol-proj .xcol-val{font-size:15px;font-weight:500}
+.xrem{background:none;border:none;cursor:pointer;color:var(--fa);font-size:20px;padding:4px 6px;line-height:1;flex-shrink:0;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all .15s}
+.xrem:hover{color:#E24B4A;background:rgba(226,75,74,.1)}
+@media(max-width:480px){
+.xcol-now{min-width:62px}.xcol-proj{min-width:66px}
+.extra-row{gap:6px}
+.hdate{font-size:11px;min-width:auto}
+}
+.footer{text-align:center;margin-top:24px;padding-bottom:8px;font-size:11px;color:var(--fa)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const PINNED=[
+{name:"Bangalore",country:"India",tz:"Asia/Kolkata",flag:"\ud83c\uddee\ud83c\uddf3",lat:12.97,lon:77.59},
+{name:"Madrid",country:"Spain",tz:"Europe/Madrid",flag:"\ud83c\uddea\ud83c\uddf8",lat:40.42,lon:-3.70},
+{name:"San Jose",country:"Costa Rica",tz:"America/Costa_Rica",flag:"\ud83c\udde8\ud83c\uddf7",lat:9.93,lon:-84.08},
+{name:"Atlanta",country:"USA",tz:"America/New_York",flag:"\ud83c\uddfa\ud83c\uddf8",lat:33.75,lon:-84.39},
+];
+const HOME_DEFAULT={name:"Sydney",tz:"Australia/Sydney",flag:"\ud83c\udde6\ud83c\uddfa",lat:-33.87,lon:151.21};
+const TZ_META={"Australia/Sydney":{name:"Sydney",flag:"\ud83c\udde6\ud83c\uddfa",lat:-33.87,lon:151.21},"Australia/Melbourne":{name:"Melbourne",flag:"\ud83c\udde6\ud83c\uddfa",lat:-37.81,lon:144.96},"America/New_York":{name:"New York",flag:"\ud83c\uddfa\ud83c\uddf8",lat:40.71,lon:-74.01},"America/Los_Angeles":{name:"Los Angeles",flag:"\ud83c\uddfa\ud83c\uddf8",lat:34.05,lon:-118.24},"Europe/London":{name:"London",flag:"\ud83c\uddec\ud83c\udde7",lat:51.51,lon:-0.13},"Europe/Paris":{name:"Paris",flag:"\ud83c\uddeb\ud83c\uddf7",lat:48.86,lon:2.35},"Asia/Tokyo":{name:"Tokyo",flag:"\ud83c\uddef\ud83c\uddf5",lat:35.68,lon:139.69},"Asia/Singapore":{name:"Singapore",flag:"\ud83c\uddf8\ud83c\uddec",lat:1.35,lon:103.82},"Asia/Kolkata":{name:"Mumbai",flag:"\ud83c\uddee\ud83c\uddf3",lat:19.08,lon:72.88},"Asia/Dubai":{name:"Dubai",flag:"\ud83c\udde6\ud83c\uddea",lat:25.20,lon:55.27}};
+const FLAGS={"America/New_York":"\ud83c\uddfa\ud83c\uddf8","America/Los_Angeles":"\ud83c\uddfa\ud83c\uddf8","America/Chicago":"\ud83c\uddfa\ud83c\uddf8","Europe/London":"\ud83c\uddec\ud83c\udde7","Europe/Paris":"\ud83c\uddeb\ud83c\uddf7","Europe/Berlin":"\ud83c\udde9\ud83c\uddea","Asia/Tokyo":"\ud83c\uddef\ud83c\uddf5","Asia/Shanghai":"\ud83c\udde8\ud83c\uddf3","Asia/Hong_Kong":"\ud83c\udded\ud83c\uddf0","Asia/Singapore":"\ud83c\uddf8\ud83c\uddec","Asia/Dubai":"\ud83c\udde6\ud83c\uddea","Asia/Kolkata":"\ud83c\uddee\ud83c\uddf3","Asia/Seoul":"\ud83c\uddf0\ud83c\uddf7","Europe/Istanbul":"\ud83c\uddf9\ud83c\uddf7","Europe/Moscow":"\ud83c\uddf7\ud83c\uddfa","America/Sao_Paulo":"\ud83c\udde7\ud83c\uddf7","America/Toronto":"\ud83c\udde8\ud83c\udde6","Pacific/Auckland":"\ud83c\uddf3\ud83c\uddff","Australia/Melbourne":"\ud83c\udde6\ud83c\uddfa","Australia/Sydney":"\ud83c\udde6\ud83c\uddfa","Europe/Rome":"\ud83c\uddee\ud83c\uddf9","Europe/Amsterdam":"\ud83c\uddf3\ud83c\uddf1","Europe/Stockholm":"\ud83c\uddf8\ud83c\uddea","Europe/Madrid":"\ud83c\uddea\ud83c\uddf8","America/Costa_Rica":"\ud83c\udde8\ud83c\uddf7","America/Bogota":"\ud83c\udde8\ud83c\uddf4","Asia/Ho_Chi_Minh":"\ud83c\uddfb\ud83c\uddf3","Pacific/Honolulu":"\ud83c\uddfa\ud83c\uddf8","America/Denver":"\ud83c\uddfa\ud83c\uddf8","America/Lima":"\ud83c\uddf5\ud83c\uddea","America/Santiago":"\ud83c\udde8\ud83c\uddf1","Asia/Taipei":"\ud83c\uddf9\ud83c\uddfc","Asia/Manila":"\ud83c\uddf5\ud83c\udded","Africa/Cairo":"\ud83c\uddea\ud83c\uddec","Africa/Johannesburg":"\ud83c\uddff\ud83c\udde6","Africa/Nairobi":"\ud83c\uddf0\ud83c\uddea","Europe/Dublin":"\ud83c\uddee\ud83c\uddea","Europe/Lisbon":"\ud83c\uddf5\ud83c\uddf9","Asia/Bangkok":"\ud83c\uddf9\ud83c\udded","Asia/Jakarta":"\ud83c\uddee\ud83c\udde9","Asia/Qatar":"\ud83c\uddf6\ud83c\udde6","Asia/Riyadh":"\ud83c\uddf8\ud83c\udde6","Asia/Kuala_Lumpur":"\ud83c\uddf2\ud83c\uddfe"};
+const ALL_CITIES=[{n:"New York",t:"America/New_York"},{n:"Los Angeles",t:"America/Los_Angeles"},{n:"Chicago",t:"America/Chicago"},{n:"London",t:"Europe/London"},{n:"Paris",t:"Europe/Paris"},{n:"Berlin",t:"Europe/Berlin"},{n:"Tokyo",t:"Asia/Tokyo"},{n:"Beijing",t:"Asia/Shanghai"},{n:"Hong Kong",t:"Asia/Hong_Kong"},{n:"Singapore",t:"Asia/Singapore"},{n:"Dubai",t:"Asia/Dubai"},{n:"Mumbai",t:"Asia/Kolkata"},{n:"Seoul",t:"Asia/Seoul"},{n:"Bangkok",t:"Asia/Bangkok"},{n:"Istanbul",t:"Europe/Istanbul"},{n:"Moscow",t:"Europe/Moscow"},{n:"Sao Paulo",t:"America/Sao_Paulo"},{n:"Toronto",t:"America/Toronto"},{n:"Vancouver",t:"America/Vancouver"},{n:"Auckland",t:"Pacific/Auckland"},{n:"Melbourne",t:"Australia/Melbourne"},{n:"Perth",t:"Australia/Perth"},{n:"Taipei",t:"Asia/Taipei"},{n:"Manila",t:"Asia/Manila"},{n:"Cairo",t:"Africa/Cairo"},{n:"Johannesburg",t:"Africa/Johannesburg"},{n:"Nairobi",t:"Africa/Nairobi"},{n:"Rome",t:"Europe/Rome"},{n:"Amsterdam",t:"Europe/Amsterdam"},{n:"Stockholm",t:"Europe/Stockholm"},{n:"Lisbon",t:"Europe/Lisbon"},{n:"Dublin",t:"Europe/Dublin"},{n:"Denver",t:"America/Denver"},{n:"San Francisco",t:"America/Los_Angeles"},{n:"Lima",t:"America/Lima"},{n:"Santiago",t:"America/Santiago"},{n:"Honolulu",t:"Pacific/Honolulu"},{n:"Bogota",t:"America/Bogota"},{n:"Doha",t:"Asia/Qatar"},{n:"Hanoi",t:"Asia/Ho_Chi_Minh"},{n:"Kuala Lumpur",t:"Asia/Kuala_Lumpur"}];
+const PRESETS=[{l:"6am",v:"06:00"},{l:"9am",v:"09:00"},{l:"12pm",v:"12:00"},{l:"2pm",v:"14:00"},{l:"5pm",v:"17:00"},{l:"9pm",v:"21:00"},{l:"12am",v:"00:00"}];
+const TZ_AB={
+"Australia/Sydney":["AEST","AEDT"],"Australia/Melbourne":["AEST","AEDT"],"Australia/Brisbane":["AEST","AEST"],"Australia/Perth":["AWST","AWST"],
+"America/New_York":["EST","EDT"],"America/Los_Angeles":["PST","PDT"],"America/Chicago":["CST","CDT"],"America/Denver":["MST","MDT"],
+"America/Toronto":["EST","EDT"],"America/Vancouver":["PST","PDT"],"America/Costa_Rica":["CST","CST"],
+"America/Sao_Paulo":["BRT","BRST"],"America/Bogota":["COT","COT"],"America/Lima":["PET","PET"],"America/Santiago":["CLT","CLST"],"America/Mexico_City":["CST","CDT"],
+"Europe/London":["GMT","BST"],"Europe/Paris":["CET","CEST"],"Europe/Berlin":["CET","CEST"],"Europe/Madrid":["CET","CEST"],
+"Europe/Rome":["CET","CEST"],"Europe/Amsterdam":["CET","CEST"],"Europe/Stockholm":["CET","CEST"],"Europe/Zurich":["CET","CEST"],
+"Europe/Warsaw":["CET","CEST"],"Europe/Athens":["EET","EEST"],
+"Europe/Lisbon":["WET","WEST"],"Europe/Dublin":["GMT","IST"],"Europe/Istanbul":["TRT","TRT"],"Europe/Moscow":["MSK","MSK"],
+"Asia/Tokyo":["JST","JST"],"Asia/Shanghai":["CST","CST"],"Asia/Hong_Kong":["HKT","HKT"],
+"Asia/Singapore":["SGT","SGT"],"Asia/Dubai":["GST","GST"],"Asia/Kolkata":["IST","IST"],
+"Asia/Seoul":["KST","KST"],"Asia/Bangkok":["ICT","ICT"],"Asia/Jakarta":["WIB","WIB"],
+"Asia/Taipei":["CST","CST"],"Asia/Manila":["PHT","PHT"],"Asia/Ho_Chi_Minh":["ICT","ICT"],
+"Asia/Qatar":["AST","AST"],"Asia/Riyadh":["AST","AST"],"Asia/Kuala_Lumpur":["MYT","MYT"],
+"Africa/Cairo":["EET","EEST"],"Africa/Johannesburg":["SAST","SAST"],"Africa/Nairobi":["EAT","EAT"],
+"Africa/Lagos":["WAT","WAT"],"Africa/Casablanca":["WET","WEST"],"Africa/Accra":["GMT","GMT"],
+"Pacific/Auckland":["NZST","NZDT"],"Pacific/Honolulu":["HST","HST"],
+};
+
+let home={...HOME_DEFAULT},pTime,dark=true,extra=[],weather={},weatherTS="",copyDD=false;
+let copySel=[],showAbbrev=true,showGmt=false,copyFlags=false,copiedUntil=0;
+function initCopySel(){copySel=[{name:home.name,tz:home.tz},{name:"Bangalore",tz:"Asia/Kolkata"},{name:"Madrid",tz:"Europe/Madrid"}]}
+function toggleAbbrev(){showAbbrev=!showAbbrev;if(!showAbbrev&&!showGmt)showGmt=true;render()}
+function toggleGmt(){showGmt=!showGmt;if(!showGmt&&!showAbbrev)showAbbrev=true;render()}
+function toggleCopyFlags(){copyFlags=!copyFlags;render()}
+function getHHMM(tz){const p=new Intl.DateTimeFormat("en-AU",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:tz}).formatToParts(new Date());return`${p.find(x=>x.type==="hour")?.value||"09"}:${p.find(x=>x.type==="minute")?.value||"00"}`}
+function getOff(tz,d){return(new Date(d.toLocaleString("en-US",{timeZone:tz}))-new Date(d.toLocaleString("en-US",{timeZone:"UTC"})))/60000}
+function fmtHMS(d,tz){return new Intl.DateTimeFormat("en-AU",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZone:tz}).format(d)}
+function fmtDate(d,tz){return new Intl.DateTimeFormat("en-AU",{weekday:"short",day:"numeric",month:"short",year:"numeric",timeZone:tz}).format(d)}
+function fmtDS(d,tz){return new Intl.DateTimeFormat("en-AU",{weekday:"short",day:"numeric",month:"short",timeZone:tz}).format(d)}
+function diffStr(tz,now){const s=getOff(home.tz,now),c=getOff(tz,now),diff=(c-s)/60;if(diff===0)return"same";const abs=Math.abs(diff),h=Math.floor(abs),m=Math.round((abs-h)*60);let r="";if(h>0)r+=h+"h";if(m>0)r+=(r?" ":"")+m+"m";return(diff>0?"+":"\u2212")+r}
+function doProj(targetTz,pT,now){if(!pT)return null;const hN=new Date(now.toLocaleString("en-US",{timeZone:home.tz}));const[h,m]=pT.split(":").map(Number);hN.setHours(h,m,0,0);const hO=getOff(home.tz,now),uMs=hN.getTime()-hO*60000,cO=getOff(targetTz,now);const cT=new Date(uMs+cO*60000);const time=cT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true});const cD=cT.toLocaleDateString("en-AU",{weekday:"short",day:"numeric",month:"short"});const hD=hN.toLocaleDateString("en-AU",{weekday:"short",day:"numeric",month:"short"});let dc="same";if(cD!==hD){const a=new Date(hN);a.setHours(0,0,0,0);const b=new Date(cT);b.setHours(0,0,0,0);dc=b<a?"prev":"next"}return{time,dc}}
+function wIcon(code,isDay){if(code==null)return"";if(code<=1)return isDay?"\u2600\ufe0f":"\ud83c\udf19";if(code<=3)return isDay?"\u26c5":"\ud83c\udf19";if(code<=48)return"\ud83c\udf2b\ufe0f";if(code<=65)return"\ud83c\udf27\ufe0f";if(code<=75)return"\u2744\ufe0f";return"\u26c8\ufe0f"}
+function wText(code){if(code==null)return"";if(code<=1)return"Clear";if(code<=3)return"Cloudy";if(code<=48)return"Fog";if(code<=55)return"Drizzle";if(code<=65)return"Rain";if(code<=75)return"Snow";if(code<=82)return"Showers";return"Storms"}
+function badge(dc){const cls=dc==="same"?"badge-s":dc==="prev"?"badge-p":"badge-n";const lbl=dc==="same"?"same day":dc==="prev"?"yesterday":"tomorrow";return`<span class="badge ${cls}">${lbl}</span>`}
+function splitTime(t){if(!t)return{num:"--",ap:""};const m=t.match(/^([\d:]+)\s*(am|pm)$/i);return m?{num:m[1],ap:m[2].toLowerCase()}:{num:t,ap:""}}
+function getProjDate(targetTz,pT,now){if(!pT)return null;const hN=new Date(now.toLocaleString("en-US",{timeZone:home.tz}));const[h,m]=pT.split(":").map(Number);hN.setHours(h,m,0,0);const hO=getOff(home.tz,now),uMs=hN.getTime()-hO*60000,cO=getOff(targetTz,now);return new Date(uMs+cO*60000)}
+function getTzAbbrev(tz,date){const map=TZ_AB[tz];if(map){if(map[0]===map[1])return map[0];const jan=new Date(date.getFullYear(),0,1),jul=new Date(date.getFullYear(),6,1);const janOff=getOff(tz,jan),julOff=getOff(tz,jul);if(janOff===julOff)return map[0];return getOff(tz,date)===Math.max(janOff,julOff)?map[1]:map[0]}try{const parts=new Intl.DateTimeFormat("en-US",{timeZone:tz,timeZoneName:"short"}).formatToParts(date);const p=parts.find(x=>x.type==="timeZoneName");if(p&&!p.value.startsWith("GMT"))return p.value}catch{}return tz.split("/").pop()}
+function getGmtOffset(tz,date){const offMin=getOff(tz,date);const sign=offMin>=0?"+":"-";const abs=Math.abs(offMin);const h=Math.floor(abs/60);const m=abs%60;return m>0?`GMT${sign}${h}:${String(m).padStart(2,"0")}`:`GMT${sign}${h}`}
+function fmtProjCopy(tz,pT,now){const projDate=getProjDate(tz,pT,now);if(!projDate)return null;const time=projDate.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:tz}).replace(/\s/g,"").toLowerCase();const abbrev=getTzAbbrev(tz,projDate);const gmtOff=getGmtOffset(tz,projDate);let tzLabel;if(showAbbrev&&showGmt)tzLabel=abbrev+" ("+gmtOff+")";else if(showGmt)tzLabel=gmtOff;else tzLabel=abbrev;const hN=new Date(now.toLocaleString("en-US",{timeZone:home.tz}));const[h,m]=pT.split(":").map(Number);hN.setHours(h,m,0,0);const hD=hN.toLocaleDateString("en-US",{day:"numeric",month:"numeric"});const cD=projDate.toLocaleDateString("en-US",{day:"numeric",month:"numeric",timeZone:tz});let daySuffix="";if(hD!==cD){const a=new Date(hN);a.setHours(0,0,0,0);const cLocal=new Date(projDate.toLocaleString("en-US",{timeZone:tz}));cLocal.setHours(0,0,0,0);daySuffix=cLocal>a?" (+1 day)":" (-1 day)"}const flag=copyFlags?(FLAGS[tz]||"\ud83c\udf10")+" ":"";return flag+time+" "+tzLabel+daySuffix}
+function buildTimeString(){const now=new Date();const parts=[];copySel.forEach(c=>{const s=fmtProjCopy(c.tz,pTime,now);if(s)parts.push(s)});return parts.join(" / ")}
+function addToCopySel(name,tz){if(copySel.find(c=>c.name===name))return;copySel.push({name,tz});copyDD=false;render()}
+function removeFromCopySel(name){copySel=copySel.filter(c=>c.name!==name);render()}
+function toggleCopyDD(){copyDD=!copyDD;render()}
+function copyTimes(){const str=buildTimeString();if(!str)return;navigator.clipboard.writeText(str).then(()=>{copiedUntil=Date.now()+2000;render()}).catch(()=>{const ta=document.createElement("textarea");ta.value=str;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);copiedUntil=Date.now()+2000;render()})}
+async function fetchWeather(){
+const all=[{name:home.name,lat:home.lat,lon:home.lon},...PINNED];
+const lats=all.map(c=>c.lat).join(",");
+const lons=all.map(c=>c.lon).join(",");
+try{
+const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lats}&longitude=${lons}&current_weather=true`);
+if(r.ok){const d=await r.json();
+if(Array.isArray(d)){d.forEach((item,i)=>{if(item?.current_weather)weather[all[i].name]=item.current_weather})}
+else if(d?.current_weather){weather[all[0].name]=d.current_weather}}
+}catch{}
+weatherTS=new Date().toLocaleString("en-AU",{timeZone:home.tz,day:"numeric",month:"short",hour:"numeric",minute:"2-digit",hour12:true});
+render()}
+
+function render(){
+const now=new Date();const app=document.getElementById("app");
+const focusId=document.activeElement?.id;
+const focusVal=document.activeElement?.value;
+const focusSel=document.activeElement?.selectionStart;
+const homeW=weather[home.name];
+let h="";
+
+h+=`<div class="header">`;
+h+=`<div class="dot"></div>`;
+h+=`<span class="hflag">${home.flag}</span>`;
+h+=`<span class="hcity">${home.name}</span>`;
+h+=`<span class="htime mono">${fmtHMS(now,home.tz)} <span style="font-size:11px;color:var(--mu)">${getTzAbbrev(home.tz,now)}</span></span>`;
+if(homeW)h+=`<span class="hw"><span>${wIcon(homeW.weathercode,homeW.is_day)}</span>${Math.round(homeW.temperature)}\u00b0C</span>`;
+h+=`<span class="hdate">${fmtDate(now,home.tz)}</span>`;
+h+=`<button class="tbtn" onclick="toggleTheme()" aria-label="Toggle theme">${dark?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'}</button>`;
+h+=`</div>`;
+
+h+=`<div class="proj">`;
+h+=`<div class="proj-head"><span class="proj-label">Time projector</span><button class="rbtn" onclick="resetNow()">Reset to now</button></div>`;
+h+=`<div class="proj-cards">`;
+h+=`<div class="pcard pcard-now"><div class="pcard-lbl pcard-lbl-muted">right now in ${home.name}</div><div class="pcard-time mono" style="color:var(--mid)">${fmtHMS(now,home.tz)}<span class="pcard-tz">${getTzAbbrev(home.tz,now)}</span></div><div class="pcard-date">${fmtDS(now,home.tz)}</div></div>`;
+h+=`<div class="pcard pcard-to"><div class="pcard-lbl pcard-lbl-ac">project to</div><input type="time" class="pcard-inp mono" id="pt-input" value="${pTime}" onchange="setPT(this.value)"><div class="pcard-date">${fmtDS(now,home.tz)}</div></div>`;
+h+=`</div>`;
+h+=`<div class="presets">${PRESETS.map(p=>`<button class="pbtn${pTime===p.v?" on":""}" onclick="setPT('${p.v}')">${p.l}</button>`).join("")}</div>`;
+h+=`</div>`;
+
+h+=`<div class="tiles">`;
+PINNED.forEach(city=>{
+const p=doProj(city.tz,pTime,now);const w=weather[city.name];
+const projDate=p?getProjDate(city.tz,pTime,now):null;
+const tzAb=projDate?getTzAbbrev(city.tz,projDate):"";
+const nowAb=getTzAbbrev(city.tz,now);
+h+=`<div class="tile">`;
+h+=`<div class="tile-top"><div class="tile-info"><div class="tile-name"><span>${city.flag}</span><span>${city.name}</span></div><div class="tile-sub">${city.country} &middot; ${diffStr(city.tz,now)}</div></div>`;
+if(w)h+=`<div class="tile-w"><div class="tile-w-row"><span class="tile-w-icon">${wIcon(w.weathercode,w.is_day)}</span><span class="tile-w-temp mono">${Math.round(w.temperature)}\u00b0</span></div><div class="tile-w-cond">${wText(w.weathercode)}</div></div>`;
+else if(weatherTS)h+=`<div class="tile-w" style="opacity:.3"><div style="font-size:11px;color:var(--fa)">No data</div></div>`;
+else h+=`<div class="tile-w" style="opacity:.5"><div style="font-size:11px;color:var(--fa)">Loading</div></div>`;
+h+=`</div>`;
+const projGmt=projDate?getGmtOffset(city.tz,projDate):"";
+const nowGmt=getGmtOffset(city.tz,now);
+h+=`<div class="tile-proj-lbl">projected</div>`;
+const pt=p?splitTime(p.time):{num:"--",ap:""};
+h+=`<div class="tile-proj-time mono">${pt.num}${pt.ap?'<span class="tile-ampm">'+pt.ap+'</span>':''} <span class="tile-proj-tz">${tzAb} <span class="tile-gmt">(${projGmt})</span></span></div>`;
+if(p)h+=badge(p.dc);
+h+=`<div class="tile-now"><div class="tile-now-inner"><div class="tile-now-lbl">right now</div><div class="tile-now-time mono">${fmtHMS(now,city.tz)} <span class="tile-now-tz">${nowAb} <span class="tile-gmt">(${nowGmt})</span></span></div><div class="tile-now-date">${fmtDS(now,city.tz)}</div></div></div>`;
+h+=`</div>`;
+});
+h+=`</div>`;
+
+const copyStr=buildTimeString();
+const availableForCopy=[{name:home.name,tz:home.tz},...PINNED.map(c=>({name:c.name,tz:c.tz})),...extra.map(c=>({name:c.n,tz:c.t}))].filter(c=>!copySel.find(s=>s.name===c.name));
+h+=`<div class="composer">`;
+h+=`<div class="composer-head"><span class="proj-label">Copy for email</span><span style="font-size:11px;color:var(--fa)">${copySel.length} selected</span></div>`;
+h+=`<div class="chips">`;
+copySel.forEach(c=>{
+const projD=getProjDate(c.tz,pTime,now);
+const abbr=projD?getTzAbbrev(c.tz,projD):"";
+h+=`<div class="chip"><span style="font-size:13px">${FLAGS[c.tz]||"\ud83c\udf10"}</span>${c.name} <span class="chip-tz">${abbr}</span><button class="chip-x" onclick="removeFromCopySel('${c.name}')" aria-label="Remove ${c.name}">&times;</button></div>`});
+h+=`<div class="chip-add-wrap"><button class="chip-add" onclick="toggleCopyDD()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add</button>`;
+if(copyDD&&availableForCopy.length>0){
+h+=`<div class="chip-dd">`;
+availableForCopy.forEach(c=>{h+=`<div class="chip-dd-item" onmousedown="addToCopySel('${c.name.replace(/'/g,"\\'")}','${c.tz}')"><span style="font-size:13px">${FLAGS[c.tz]||"\ud83c\udf10"}</span>${c.name}</div>`});
+h+=`</div>`}
+if(copyDD&&availableForCopy.length===0){h+=`<div class="chip-dd"><div style="padding:10px 12px;font-size:12px;color:var(--fa)">All cities added</div></div>`}
+h+=`</div></div>`;
+h+=`<div class="copy-opts">`;
+h+=`<div class="opt-group"><span class="opt-label">Format</span>`;
+h+=`<button class="opt-pill${showAbbrev?" on":""}" onclick="toggleAbbrev()">AEST</button>`;
+h+=`<button class="opt-pill${showGmt?" on":""}" onclick="toggleGmt()">GMT+10</button>`;
+h+=`</div>`;
+h+=`<button class="flag-btn${copyFlags?" on":""}" onclick="toggleCopyFlags()">Flags</button>`;
+h+=`</div>`;
+if(copySel.length>0){
+h+=`<div class="copy-preview mono">${copyStr}</div>`;
+const isCopied=Date.now()<copiedUntil;
+h+=`<div class="copy-actions"><button class="copy-btn${isCopied?" copied":""}" onclick="copyTimes()">${isCopied?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy times'}</button><span class="copy-hint">Paste into emails, calendar invites, Slack&hellip;</span></div>`;
+}else{h+=`<div class="copy-empty">Add cities above to build your time string</div>`}
+h+=`</div>`;
+
+h+=`<div class="wstrip"><span>Weather ${weatherTS?"updated "+weatherTS:"loading..."}</span><button class="rbtn" onclick="fetchWeather()">Refresh</button></div>`;
+
+h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span class="section-lbl">More cities</span>${extra.length?`<span style="font-size:12px;color:var(--fa)">${extra.length} added</span>`:""}</div>`;
+h+=`<div style="position:relative"><div class="add-row"><input type="text" id="srch" placeholder="Add a city..." oninput="onSearch()" onfocus="onSearch()" onblur="setTimeout(hideDD,200)" onkeydown="if(event.key==='Enter')addFirst()"><button onclick="addFirst()">Add</button></div><div class="dd-list" id="dd" style="display:none"></div></div>`;
+
+if(extra.length){extra.forEach((c,i)=>{
+const p2=doProj(c.t,pTime,now);
+const xNowAb=getTzAbbrev(c.t,now);
+const xProjD=p2?getProjDate(c.t,pTime,now):null;
+const xProjAb=xProjD?getTzAbbrev(c.t,xProjD):"";
+h+=`<div class="extra-row" ${i===extra.length-1?'style="border-bottom:none"':''}>`;
+h+=`<div class="xname"><span class="xname-flag">${FLAGS[c.t]||"\ud83c\udf10"}</span><div class="xname-text"><div class="xname-city">${c.n}</div><div class="xname-off">${diffStr(c.t,now)}</div></div></div>`;
+h+=`<div class="xcol xcol-now"><div class="xcol-lbl">now</div><div class="xcol-val mono">${fmtHMS(now,c.t)} <span style="font-size:10px;color:var(--fa)">${xNowAb}</span></div></div>`;
+h+=`<div class="xcol xcol-proj"><div class="xcol-lbl">projected</div><div class="xcol-val mono">${p2?p2.time:"--"} <span style="font-size:10px;color:var(--fa)">${xProjAb}</span></div>${p2?badge(p2.dc):""}</div>`;
+h+=`<button class="xrem" onclick="removeExtra('${c.n}')" aria-label="Remove ${c.n}">&times;</button>`;
+h+=`</div>`})}
+
+h+=`<div class="footer">All times update live &middot; Offsets from ${home.name}</div>`;
+app.innerHTML=h;
+
+if(focusId){const el=document.getElementById(focusId);if(el){el.focus();if(focusVal!==undefined)el.value=focusVal;if(focusSel!==undefined&&el.setSelectionRange)try{el.setSelectionRange(focusSel,focusSel)}catch{}}}}
+
+function toggleTheme(){dark=!dark;document.body.classList.toggle("light",!dark);document.getElementById("tc").content=dark?"#0c0c0a":"#ffffff"}
+function setPT(v){pTime=v;render()}
+function resetNow(){setPT(getHHMM(home.tz))}
+function onSearch(){const v=document.getElementById("srch").value.trim().toLowerCase();const dd=document.getElementById("dd");if(!v){dd.style.display="none";return}
+const f=ALL_CITIES.filter(c=>c.n.toLowerCase().includes(v)&&!extra.find(e=>e.n===c.n)&&!PINNED.find(p=>p.name===c.n)).slice(0,5);
+if(!f.length){dd.style.display="none";return}
+dd.style.display="block";dd.innerHTML=f.map(c=>`<div class="dd-item" onmousedown="addCity('${c.n}')"><span style="font-size:14px">${FLAGS[c.t]||"\ud83c\udf10"}</span><span style="flex:1">${c.n}</span><span style="font-size:12px;color:var(--fa)">${diffStr(c.t,new Date())}</span></div>`).join("")}
+function hideDD(){const dd=document.getElementById("dd");if(dd)dd.style.display="none"}
+function addCity(name){const c=ALL_CITIES.find(x=>x.n===name);if(!c||extra.find(e=>e.n===name))return;extra.push(c);document.getElementById("srch").value="";hideDD();render()}
+function addFirst(){const v=document.getElementById("srch").value.trim().toLowerCase();const c=ALL_CITIES.find(x=>x.n.toLowerCase().includes(v)&&!extra.find(e=>e.n===x.n));if(c)addCity(c.n)}
+function removeExtra(name){extra=extra.filter(c=>c.n!==name);render()}
+
+try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;const meta=TZ_META[tz];
+if(meta){home={name:meta.name,tz,flag:meta.flag,lat:meta.lat,lon:meta.lon}}
+else{const city=tz.split("/").pop().replace(/_/g," ");home={...HOME_DEFAULT,name:city,tz,flag:FLAGS[tz]||"\ud83c\udf10"}}}catch{}
+pTime=getHHMM(home.tz);
+initCopySel();
+document.addEventListener("click",e=>{if(copyDD&&!e.target.closest(".chip-add-wrap")){copyDD=false;render()}});
+
+fetchWeather();
+if(navigator.geolocation){navigator.geolocation.getCurrentPosition(pos=>{home.lat=pos.coords.latitude;home.lon=pos.coords.longitude;fetchWeather()},()=>{},{timeout:5000})}
+setTimeout(()=>{if(!Object.keys(weather).length)fetchWeather()},3000);
+setInterval(fetchWeather,600000);
+
+render();
+setInterval(render,1000);
+</script>
+</body>
+</html>
