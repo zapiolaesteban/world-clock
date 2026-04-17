@@ -37,15 +37,16 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .wrap{max-width:760px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),16px) 16px calc(max(env(safe-area-inset-bottom,0px),16px) + 16px)}
 .mono{font-family:'DM Mono',monospace}
 
-.header{display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--bd);margin-bottom:18px;flex-wrap:wrap}
+.header{display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--bd);margin-bottom:18px;flex-wrap:nowrap;overflow:hidden}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--ac);flex-shrink:0;animation:pulse 2.5s ease-in-out infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(93,202,165,.4)}50%{box-shadow:0 0 0 5px rgba(93,202,165,0)}}
 .hflag{font-size:15px;flex-shrink:0}
 .hcity{font-size:15px;font-weight:500;white-space:nowrap}
 .htime{font-size:15px;font-weight:500;white-space:nowrap}
-.hdate{font-size:12px;color:var(--mu);flex:1;text-align:right;min-width:60px}
+.hdate{font-size:12px;color:var(--mu);text-align:right;white-space:nowrap;flex-shrink:0}
 .hw{font-size:13px;color:var(--mu);display:flex;align-items:center;gap:3px;white-space:nowrap}
 .hw span:first-child{font-size:15px}
+.hspacer{flex:1;min-width:4px}
 .tbtn{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px;cursor:pointer;color:var(--mu);display:flex;align-items:center;flex-shrink:0;min-width:36px;min-height:36px;justify-content:center;transition:border-color .15s}
 .tbtn:hover{border-color:var(--mu)}
 .tbtn:active{transform:scale(.95)}
@@ -56,8 +57,9 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .rbtn{font-size:11px;padding:6px 12px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--ac);cursor:pointer;font-weight:500;font-family:inherit;min-height:32px;transition:all .15s}
 .rbtn:hover{background:var(--acBg);border-color:var(--ac)}
 .rbtn:active{transform:scale(.96)}
-.proj-cards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:stretch}
-.pcard{flex:1 1 140px;min-width:130px;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
+.proj-cards{display:flex;gap:10px;margin-bottom:14px;align-items:stretch}
+@media(max-width:520px){.proj-cards{flex-direction:column}}
+.pcard{flex:1;min-width:0;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
 .pcard-now{background:var(--nowBg)}
 .pcard-to{background:var(--card);border:1.5px solid var(--ac)}
 .pcard-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
@@ -78,7 +80,8 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .pbtn.on{border-color:var(--ac);background:var(--acBg);color:var(--acTx)}
 
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:22px}
-@media(max-width:480px){.tiles{grid-template-columns:1fr}}
+.tile:last-child:nth-child(odd){grid-column:1/-1}
+@media(max-width:480px){.tiles{grid-template-columns:1fr}.tile:last-child:nth-child(odd){grid-column:auto}}
 .tile{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 14px 12px;border-top:2.5px solid var(--tileTop);display:flex;flex-direction:column;min-height:170px}
 .tile-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;gap:6px}
 .tile-info{min-width:0;flex:1}
@@ -167,7 +170,18 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 @media(max-width:480px){
 .xcol-now{min-width:62px}.xcol-proj{min-width:66px}
 .extra-row{gap:6px}
-.hdate{font-size:11px;min-width:auto}
+.hdate{display:none}
+.hcity{font-size:14px}
+.htime{font-size:14px}
+.hw{font-size:12px}
+.pcard-time{font-size:24px}
+.pcard-inp{font-size:24px}
+.presets{gap:4px}
+.pbtn{font-size:11px;padding:6px 9px}
+.tile-proj-time{font-size:22px}
+}
+@media(min-width:481px) and (max-width:620px){
+.hdate{font-size:11px}
 }
 .footer{text-align:center;margin-top:24px;padding-bottom:8px;font-size:11px;color:var(--fa)}
 </style>
@@ -178,6 +192,7 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 const PINNED=[
 {name:"Bangalore",country:"India",tz:"Asia/Kolkata",flag:"\ud83c\uddee\ud83c\uddf3",lat:12.97,lon:77.59},
 {name:"Madrid",country:"Spain",tz:"Europe/Madrid",flag:"\ud83c\uddea\ud83c\uddf8",lat:40.42,lon:-3.70},
+{name:"Seoul",country:"South Korea",tz:"Asia/Seoul",flag:"\ud83c\uddf0\ud83c\uddf7",lat:37.57,lon:126.98},
 {name:"San Jose",country:"Costa Rica",tz:"America/Costa_Rica",flag:"\ud83c\udde8\ud83c\uddf7",lat:9.93,lon:-84.08},
 {name:"Atlanta",country:"USA",tz:"America/New_York",flag:"\ud83c\uddfa\ud83c\uddf8",lat:33.75,lon:-84.39},
 ];
@@ -207,6 +222,7 @@ const TZ_AB={
 
 let home={...HOME_DEFAULT},pTime,dark=true,extra=[],weather={},weatherTS="",copyDD=false;
 let copySel=[],showAbbrev=true,showGmt=false,copyFlags=false,copiedUntil=0;
+let searchVal="",searchOpen=false;
 function initCopySel(){copySel=[{name:home.name,tz:home.tz},{name:"Bangalore",tz:"Asia/Kolkata"},{name:"Madrid",tz:"Europe/Madrid"}]}
 function toggleAbbrev(){showAbbrev=!showAbbrev;if(!showAbbrev&&!showGmt)showGmt=true;render()}
 function toggleGmt(){showGmt=!showGmt;if(!showGmt&&!showAbbrev)showAbbrev=true;render()}
@@ -274,6 +290,7 @@ h+=`<span class="hflag">${home.flag}</span>`;
 h+=`<span class="hcity">${home.name}</span>`;
 h+=`<span class="htime mono">${fmtHMS(now,home.tz)} <span style="font-size:11px;color:var(--mu)">${getTzAbbrev(home.tz,now)}</span></span>`;
 if(homeW)h+=`<span class="hw"><span>${wIcon(homeW.weathercode,homeW.is_day)}</span>${Math.round(homeW.temperature)}\u00b0C</span>`;
+h+=`<span class="hspacer"></span>`;
 h+=`<span class="hdate">${fmtDate(now,home.tz)}</span>`;
 h+=`<button class="tbtn" onclick="toggleTheme()" aria-label="Toggle theme">${dark?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'}</button>`;
 h+=`</div>`;
@@ -343,7 +360,16 @@ h+=`</div>`;
 h+=`<div class="wstrip"><span>Weather ${weatherTS?"updated "+weatherTS:"loading..."}</span><button class="rbtn" onclick="fetchWeather()">Refresh</button></div>`;
 
 h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span class="section-lbl">More cities</span>${extra.length?`<span style="font-size:12px;color:var(--fa)">${extra.length} added</span>`:""}</div>`;
-h+=`<div style="position:relative"><div class="add-row"><input type="text" id="srch" placeholder="Add a city..." oninput="onSearch()" onfocus="onSearch()" onblur="setTimeout(hideDD,200)" onkeydown="if(event.key==='Enter')addFirst()"><button onclick="addFirst()">Add</button></div><div class="dd-list" id="dd" style="display:none"></div></div>`;
+const srchFiltered=searchVal.trim()?ALL_CITIES.filter(c=>c.n.toLowerCase().includes(searchVal.trim().toLowerCase())&&!extra.find(e=>e.n===c.n)&&!PINNED.find(p=>p.name===c.n)).slice(0,6):[];
+h+=`<div style="position:relative"><div class="add-row"><input type="text" id="srch" placeholder="Add a city..." value="${searchVal}" oninput="searchVal=this.value;searchOpen=true;render()" onfocus="searchOpen=true;render()" onkeydown="if(event.key==='Enter'){event.preventDefault();addFirst()}"><button onclick="addFirst()">Add</button></div>`;
+if(searchOpen&&srchFiltered.length>0){
+h+=`<div class="dd-list">`;
+srchFiltered.forEach(c=>{
+h+=`<div class="dd-item" ontouchstart="event.preventDefault();addCity('${c.n.replace(/'/g,"\\'")}')" onmousedown="event.preventDefault();addCity('${c.n.replace(/'/g,"\\'")}')">`
++`<span style="font-size:14px">${FLAGS[c.t]||"\ud83c\udf10"}</span><span style="flex:1">${c.n}</span><span style="font-size:12px;color:var(--fa)">${diffStr(c.t,new Date())}</span></div>`;
+});
+h+=`</div>`}
+h+=`</div>`;
 
 if(extra.length){extra.forEach((c,i)=>{
 const p2=doProj(c.t,pTime,now);
@@ -360,20 +386,16 @@ h+=`</div>`})}
 h+=`<div class="footer">All times update live &middot; Offsets from ${home.name}</div>`;
 app.innerHTML=h;
 
-if(focusId){const el=document.getElementById(focusId);if(el){el.focus();if(focusVal!==undefined)el.value=focusVal;if(focusSel!==undefined&&el.setSelectionRange)try{el.setSelectionRange(focusSel,focusSel)}catch{}}}}
+if(focusId){const el=document.getElementById(focusId);if(el){el.focus();if(focusId==="srch"){el.value=searchVal;try{el.setSelectionRange(searchVal.length,searchVal.length)}catch{}}else if(focusVal!==undefined){el.value=focusVal;if(focusSel!==undefined&&el.setSelectionRange)try{el.setSelectionRange(focusSel,focusSel)}catch{}}}}}
 
 function toggleTheme(){dark=!dark;document.body.classList.toggle("light",!dark);document.getElementById("tc").content=dark?"#0c0c0a":"#ffffff"}
 function setPT(v){pTime=v;render()}
 function handleTimeInput(v){const parsed=parseTime(v);if(parsed){try{document.activeElement.blur()}catch{}pTime=parsed;render()}else{const el=document.getElementById("pt-input");if(el)el.value=displayTime(pTime)}}
 function nudgeTime(minutes){const[h,m]=pTime.split(":").map(Number);let total=h*60+m+minutes;if(total<0)total+=1440;if(total>=1440)total-=1440;const nh=Math.floor(total/60),nm=total%60;setPT(`${String(nh).padStart(2,"0")}:${String(nm).padStart(2,"0")}`)}
 function resetNow(){setPT(getHHMM(home.tz))}
-function onSearch(){const v=document.getElementById("srch").value.trim().toLowerCase();const dd=document.getElementById("dd");if(!v){dd.style.display="none";return}
-const f=ALL_CITIES.filter(c=>c.n.toLowerCase().includes(v)&&!extra.find(e=>e.n===c.n)&&!PINNED.find(p=>p.name===c.n)).slice(0,5);
-if(!f.length){dd.style.display="none";return}
-dd.style.display="block";dd.innerHTML=f.map(c=>`<div class="dd-item" onmousedown="addCity('${c.n}')"><span style="font-size:14px">${FLAGS[c.t]||"\ud83c\udf10"}</span><span style="flex:1">${c.n}</span><span style="font-size:12px;color:var(--fa)">${diffStr(c.t,new Date())}</span></div>`).join("")}
-function hideDD(){const dd=document.getElementById("dd");if(dd)dd.style.display="none"}
-function addCity(name){const c=ALL_CITIES.find(x=>x.n===name);if(!c||extra.find(e=>e.n===name))return;extra.push(c);document.getElementById("srch").value="";hideDD();render()}
-function addFirst(){const v=document.getElementById("srch").value.trim().toLowerCase();const c=ALL_CITIES.find(x=>x.n.toLowerCase().includes(v)&&!extra.find(e=>e.n===x.n));if(c)addCity(c.n)}
+function onSearch(){searchOpen=true;render()}
+function addCity(name){const c=ALL_CITIES.find(x=>x.n===name);if(!c||extra.find(e=>e.n===name))return;extra.push(c);searchVal="";searchOpen=false;render()}
+function addFirst(){const v=searchVal.trim().toLowerCase();if(!v)return;const c=ALL_CITIES.find(x=>x.n.toLowerCase().includes(v)&&!extra.find(e=>e.n===x.n)&&!PINNED.find(p=>p.name===x.n));if(c)addCity(c.n)}
 function removeExtra(name){extra=extra.filter(c=>c.n!==name);render()}
 
 try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;const meta=TZ_META[tz];
@@ -381,7 +403,10 @@ if(meta){home={name:meta.name,tz,flag:meta.flag,lat:meta.lat,lon:meta.lon}}
 else{const city=tz.split("/").pop().replace(/_/g," ");home={...HOME_DEFAULT,name:city,tz,flag:FLAGS[tz]||"\ud83c\udf10"}}}catch{}
 pTime=getHHMM(home.tz);
 initCopySel();
-document.addEventListener("click",e=>{if(copyDD&&!e.target.closest(".chip-add-wrap")){copyDD=false;render()}});
+document.addEventListener("click",e=>{
+if(copyDD&&!e.target.closest(".chip-add-wrap")){copyDD=false;render()}
+if(searchOpen&&!e.target.closest(".add-row")&&!e.target.closest(".dd-list")){searchOpen=false;render()}
+});
 
 fetchWeather();
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(pos=>{home.lat=pos.coords.latitude;home.lon=pos.coords.longitude;fetchWeather()},()=>{},{timeout:5000})}
