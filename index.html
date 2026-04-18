@@ -14,8 +14,8 @@
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0c0c0a;--sf:#141412;--card:#1a1a18;--inp:#222220;--hover:#2a2a27;--dd:#222220;--tx:#e5e3dd;--mid:#b0ada6;--mu:#706e69;--fa:#4a4946;--bd:#2a2a27;--bdL:#1e1e1c;--ac:#5DCAA5;--acBg:#0d2b20;--acTx:#9FE1CB;--btn:#e5e3dd;--btnTx:#0c0c0a;--tileTop:#5DCAA5;--nowBg:#141412;--wBg:#222220;--dSbg:#0d2b20;--dSc:#9FE1CB;--dPbg:#2e2510;--dPc:#FAC775;--dNbg:#0c2640;--dNc:#85B7EB}
 .light{--bg:#fff;--sf:#f5f4f0;--card:#fff;--inp:#fff;--hover:#eeedea;--dd:#fff;--tx:#1a1a18;--mid:#5f5e5a;--mu:#888780;--fa:#b4b2a9;--bd:#e5e3dd;--bdL:#f0eeea;--ac:#1D9E75;--acBg:#E1F5EE;--acTx:#085041;--btn:#1a1a18;--btnTx:#fff;--tileTop:#1D9E75;--nowBg:#f0eeea;--wBg:#f5f4f0;--dSbg:#E1F5EE;--dSc:#085041;--dPbg:#FAEEDA;--dPc:#633806;--dNbg:#E6F1FB;--dNc:#0C447C}
-html{-webkit-text-size-adjust:100%}body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);transition:background .3s;-webkit-tap-highlight-color:transparent;min-height:100dvh}
-.wrap{max-width:760px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),16px) 16px calc(max(env(safe-area-inset-bottom,0px),16px)+16px)}
+html{-webkit-text-size-adjust:100%;overflow-x:hidden;overscroll-behavior-x:none}body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);transition:background .3s;-webkit-tap-highlight-color:transparent;min-height:100dvh;overflow-x:hidden;overscroll-behavior-x:none;width:100%;position:relative}
+.wrap{max-width:760px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),16px) 16px calc(max(env(safe-area-inset-bottom,0px),16px)+16px);overflow-x:hidden;position:relative;width:100%}
 .mono{font-family:'DM Mono',monospace}
 .header{display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--bd);margin-bottom:18px;overflow:hidden}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--ac);flex-shrink:0;animation:pulse 2.5s ease-in-out infinite}
@@ -91,6 +91,10 @@ body.edit .minus-btn{display:flex}
 .drop-indicator{height:3px;background:var(--ac);border-radius:2px;margin:4px 0;opacity:0;transition:opacity .1s}
 .drop-indicator.active{opacity:1}
 .drag-ph{border:1.5px dashed var(--bd);border-radius:12px;background:rgba(93,202,165,.04);box-sizing:border-box}
+@keyframes popIn{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.02)}100%{transform:scale(1);opacity:1}}
+.tile.just-added{animation:popIn .45s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 0 2px var(--ac),0 8px 20px rgba(93,202,165,.2)}
+@keyframes ringFade{from{box-shadow:0 0 0 2px var(--ac),0 8px 20px rgba(93,202,165,.2)}to{box-shadow:none}}
+.tile.just-added{animation:popIn .45s cubic-bezier(.34,1.56,.64,1),ringFade 2s .4s forwards}
 /* quick-add chips */
 .quick-adds{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .quick-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:20px;font-size:12px;background:var(--card);border:1px solid var(--bd);color:var(--mid);cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap;min-height:32px}
@@ -262,6 +266,7 @@ let searchVal="",searchOpen=false,interacting=false;
 let editMode=false,copyOnTop=false;
 let drag=null;
 let modalOpen=false,modalSelected=[],modalSearch="";
+let justAddedNames=[];
 const QUICK_ADDS=["Tokyo","London","New York","Paris","Singapore","Dubai","Hong Kong","Berlin"];
 
 function initCities(){const defaults=["Bangalore","Madrid","San Jose","Atlanta"];cities=defaults.map(n=>{const c=CATALOG.find(x=>x.n===n);return c?{...c}:null}).filter(Boolean)}
@@ -289,7 +294,7 @@ function buildTimeString(){const now=new Date();return copySel.map(c=>fmtProjCop
 function moveCity(i,dir){const j=i+dir;if(j<0||j>=cities.length)return;[cities[i],cities[j]]=[cities[j],cities[i]];render()}
 function toggleFW(i){if(!cities[i])return;cities[i].fw=!cities[i].fw;render()}
 function removeCity(i){const removed=cities.splice(i,1)[0];copySel=copySel.filter(c=>c.name!==removed.n);render()}
-function addCity(name){const c=CATALOG.find(x=>x.n===name);if(!c||cities.find(e=>e.n===name))return;cities.push({...c});searchVal="";searchOpen=false;if(c.la!=null)fetchW(c.n,c.la,c.lo);render()}
+function addCity(name){const c=CATALOG.find(x=>x.n===name);if(!c||cities.find(e=>e.n===name))return;cities.unshift({...c});justAddedNames=[name];setTimeout(()=>{justAddedNames=[]},2500);searchVal="";searchOpen=false;if(c.la!=null)fetchW(c.n,c.la,c.lo);render()}
 function addFirst(){const v=searchVal.trim().toLowerCase();if(!v)return;const c=CATALOG.find(x=>x.n.toLowerCase().includes(v)&&!cities.find(e=>e.n===x.n));if(c)addCity(c.n)}
 function addToCopySel(name,tz){if(copySel.find(c=>c.name===name))return;copySel.push({name,tz});copyDD=false;render()}
 function removeFromCopySel(name){copySel=copySel.filter(c=>c.name!==name);render()}
@@ -344,7 +349,7 @@ const p=doProj(city.t,pTime,now);const w=weather[city.n];
 const projDate=p?getProjDate(city.t,pTime,now):null;const tzAb=projDate?getTzAbbrev(city.t,projDate):"";const nowAb=getTzAbbrev(city.t,now);
 const projGmt=projDate?getGmtOffset(city.t,projDate):"";const nowGmt=getGmtOffset(city.t,now);
 const pt=p?splitTime(p.time):{num:"--",ap:""};
-tilesHTML+=`<div class="tile${city.fw?' fw':''}" data-idx="${i}" ontouchstart="tileTouchStart(event,${i})" onmousedown="tileMouseDown(event,${i})">`;
+tilesHTML+=`<div class="tile${city.fw?' fw':''}${justAddedNames.includes(city.n)?' just-added':''}" data-idx="${i}" ontouchstart="tileTouchStart(event,${i})" onmousedown="tileMouseDown(event,${i})">`;
 tilesHTML+=`<button class="minus-btn" onclick="event.stopPropagation();removeCity(${i})" aria-label="Remove ${city.n}">\u2212</button>`;
 tilesHTML+=`<span class="grip" aria-hidden="true"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="18" x2="16" y2="18"/></svg></span>`;
 if(editMode)tilesHTML+=`<button class="fw-btn" onclick="event.stopPropagation();toggleFW(${i})" aria-label="Toggle width">${city.fw?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>'}</button>`;
@@ -438,7 +443,11 @@ function closeModal(){modalOpen=false;modalSelected=[];modalSearch="";render()}
 function commitModal(){
 const toAdd=modalSelected.slice();
 modalOpen=false;modalSelected=[];modalSearch="";
-toAdd.forEach(name=>{const c=CATALOG.find(x=>x.n===name);if(c&&!cities.find(e=>e.n===name)){cities.push({...c});if(c.la!=null)fetchW(c.n,c.la,c.lo)}});
+const newCities=toAdd.map(name=>CATALOG.find(x=>x.n===name)).filter(c=>c&&!cities.find(e=>e.n===c.n)).map(c=>({...c}));
+cities=[...newCities,...cities];
+justAddedNames=newCities.map(c=>c.n);
+setTimeout(()=>{justAddedNames=[]},2500);
+newCities.forEach(c=>{if(c.la!=null)fetchW(c.n,c.la,c.lo)});
 render()}
 
 function toggleModalSelect(name){
@@ -455,10 +464,12 @@ const letterVisible={};
 document.querySelectorAll(".city-row").forEach(row=>{
 const name=row.dataset.name;
 const c=CATALOG.find(x=>x.n===name);if(!c){row.style.display="none";return}
-const matches=!q||name.toLowerCase().includes(q)||c.c.toLowerCase().includes(q);
-row.style.display=matches?"":"none";
-if(matches)letterVisible[row.dataset.letter]=true;
-row.classList.toggle("sel",modalSelected.includes(name))});
+const isSel=modalSelected.includes(name);
+const matches=!q||name.toLowerCase().includes(q)||c.c.toLowerCase().includes(q)||(q.length>=2&&fuzzyMatch(q,name));
+const visible=matches||isSel;
+row.style.display=visible?"":"none";
+if(visible)letterVisible[row.dataset.letter]=true;
+row.classList.toggle("sel",isSel)});
 document.querySelectorAll(".section-hdr").forEach(hdr=>{hdr.style.display=letterVisible[hdr.dataset.letter]?"":"none"});
 const none=document.getElementById("no-results");
 if(none)none.style.display=Object.keys(letterVisible).length===0?"":"none";
