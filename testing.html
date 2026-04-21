@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transformación Estratégica para Medios - Ignacio Gimenez Zapiola</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CONFIGURACIÓN RESPONSIVA Y ESTILO EJECUTIVO */
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #0f172a;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Lato', sans-serif;
+            color: #1e293b;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .slide-container {
+            width: 100%;
+            max-width: 1280px;
+            min-height: 720px;
+            background-color: #ffffff;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(30px, 5%, 60px) clamp(30px, 6%, 80px);
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+            margin-bottom: 40px;
+        }
+
+        /* ACENTOS VISUALES */
+        .slide-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(90deg, #005088 0%, #C5A059 100%);
+            z-index: 10;
+        }
+
+        .bg-element {
+            position: absolute;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(0, 80, 136, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+            top: -10%;
+            right: -10%;
+            z-index: 0;
+        }
+
+        /* TIPOGRAFÍA */
+        h1, h2, h3 {
+            font-family: 'Merriweather', serif;
+            margin: 0;
+            color: #005088;
+        }
+
+        .slide-title {
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 700;
+            margin-bottom: 8px;
+            z-index: 2;
+            text-transform: uppercase;
+        }
+
+        .slide-subtitle {
+            font-size: clamp(16px, 2vw, 20px);
+            color: #64748b;
+            font-weight: 300;
+            margin-bottom: clamp(20px, 4%, 30px);
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+            z-index: 2;
+            font-style: italic;
+        }
+
+        p, li {
+            font-size: clamp(14px, 1.5vw, 17px);
+            line-height: 1.6;
+            color: #334155;
+        }
+
+        /* PORTADA */
+        .title-layout {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            z-index: 2;
+            max-width: 900px;
+            flex-grow: 1;
+        }
+
+        .title-layout h1 {
+            font-size: clamp(36px, 6vw, 68px);
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+
+        .title-layout .main-subtitle {
+            font-size: clamp(18px, 3vw, 30px);
+            color: #64748b;
+            font-weight: 300;
+        }
+
+        .accent-line {
+            width: clamp(60px, 10%, 120px);
+            height: 5px;
+            background-color: #C5A059;
+            margin: 30px 0;
+        }
+
+        /* BLOQUE DE CONTACTO (SÓLO SLIDE 1) */
+        .contact-block {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 5;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 700;
+            font-size: clamp(14px, 1.5vw, 18px);
+            color: #1e293b;
+        }
+
+        .contact-item i {
+            color: #005088;
+            font-size: 1.2em;
+            width: 25px;
+            text-align: center;
+        }
+
+        /* QUOTE CON FOTO (SLIDE 2) */
+        .quote-container {
+            display: flex;
+            align-items: center;
+            gap: clamp(20px, 4%, 40px);
+            background-color: #f8fafc;
+            border-left: 8px solid #C5A059;
+            padding: clamp(20px, 4%, 40px);
+            margin-bottom: 30px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .profile-photo {
+            width: clamp(100px, 15vw, 160px);
+            height: clamp(100px, 15vw, 160px);
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #ffffff;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+
+        .quote-text {
+            font-size: clamp(16px, 1.8vw, 20px);
+            font-style: italic;
+            color: #1e293b;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* GRID DE TILES (SLIDE 2) */
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            z-index: 2;
+        }
+
+        /* GRID DE MÓDULOS (SLIDE 3) */
+        .grid-4-cols {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+            width: 100%;
+            z-index: 2;
+        }
+
+        .tile {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .tile .icon {
+            font-size: clamp(24px, 3vw, 32px);
+            color: #005088;
+            margin-bottom: 12px;
+        }
+
+        .tile h3 {
+            font-size: clamp(15px, 1.4vw, 18px);
+            margin-bottom: 10px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+        }
+
+        .goal-box {
+            background-color: #eef2f7;
+            padding: 8px;
+            border-left: 4px solid #C5A059;
+            margin-bottom: 12px;
+        }
+
+        .goal-text {
+            font-weight: 700;
+            color: #005088;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .tile ul {
+            padding-left: 18px;
+            margin: 0;
+        }
+
+        .tile li {
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #475569;
+        }
+
+        /* REINGENIERÍA INTEGRAL (BARRA DESTACADA) */
+        .reengineering-focus {
+            grid-column: 1 / -1;
+            background-color: #005088;
+            color: #ffffff;
+            padding: clamp(25px, 5%, 40px);
+            margin-top: 15px;
+            box-shadow: 0 15px 30px rgba(0, 80, 136, 0.3);
+            display: flex;
+            flex-wrap: wrap;
+            gap: clamp(20px, 5%, 40px);
+            align-items: center;
+        }
+
+        .reengineering-focus .icon-large {
+            font-size: clamp(40px, 6vw, 60px);
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .reengineering-focus .text-content {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .reengineering-focus h3,
+        .reengineering-focus p,
+        .reengineering-focus .goal-text {
+            color: #ffffff;
+        }
+
+        .reengineering-focus h3 {
+            font-size: clamp(20px, 2.5vw, 28px);
+            margin-bottom: 10px;
+        }
+
+        .reengineering-focus .goal-box {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid #C5A059;
+        }
+
+        .reengineering-focus p {
+            font-size: clamp(14px, 1.4vw, 16px);
+            line-height: 1.6;
+        }
+
+        .badge {
+            background-color: #C5A059;
+            color: #ffffff;
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        /* FONDOS */
+        .full-bg {
+            background-size: cover;
+            background-position: center;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0.8) 60%, rgba(255, 255, 255, 0) 100%);
+            z-index: 1;
+        }
+
+        /* ESTILOS ESPECÍFICOS PARA CUANDO SE IMPRIME/EXPORTA A PDF */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+
+            .slide-container {
+                box-shadow: none;
+                page-break-after: always;
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                border: none;
+            }
+
+            .slide-container::before {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .grid-4-cols { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+
+            .slide-container {
+                padding: 30px 20px;
+                height: auto;
+                min-height: auto;
+                margin-bottom: 20px;
+            }
+
+            .quote-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .reengineering-focus {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .grid-4-cols { grid-template-columns: 1fr; }
+            .contact-block {
+                width: 100%;
+                padding: 15px;
+                align-items: flex-start;
+            }
+
+            .contact-item {
+                font-size: 14px;
+                word-break: break-word;
+            }
+
+            .title-layout h1 {
+                font-size: 32px;
+                text-align: left;
+            }
+
+            .main-subtitle { font-size: 18px; }
+        }
+
+        @media (max-width: 480px) {
+            .slide-title {
+                font-size: 24px;
+                text-align: center;
+            }
+
+            .slide-subtitle {
+                font-size: 16px;
+                text-align: center;
+            }
+
+            .profile-photo {
+                width: 120px;
+                height: 120px;
+            }
+
+            .contact-item { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- SLIDE 1: PORTADA -->
+    <div class="slide-container full-bg" id="slide1" style="background-image: url('https://images.unsplash.com/photo-1451187534959-5e56677c3be0?q=80&amp;w=2070&amp;auto=format&amp;fit=crop');">
+        <div class="overlay"></div>
+
+        <div class="title-layout">
+            <h1>Transformación Estratégica para Medios en LATAM</h1>
+            <div class="accent-line"></div>
+            <p class="main-subtitle">Garantizar la sustentabilidad del negocio a largo plazo.</p>
+
+            <div class="contact-block">
+                <div class="contact-item">
+                    <i class="fa-solid fa-user"></i>
+                    <span>Ignacio Gimenez Zapiola</span>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fa-brands fa-linkedin"></i>
+                    <span>linkedin.com/in/ignaciogimenezzapiola</span>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Ignacio.g.zapiola@gmail.com</span>
+                </div>
+
+                <div class="contact-item">
+                    <i class="fa-solid fa-phone"></i>
+                    <span>+5491166307034</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: EJECUCIÓN -->
+    <div class="slide-container" id="slide2">
+        <div class="bg-element"></div>
+        <h2 class="slide-title">Ejecución, Compromiso y Legado</h2>
+        <div class="slide-subtitle">Acompañamiento ejecutivo enfocado en la autonomía operativa.</div>
+
+        <div style="z-index: 2; flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+            <div class="quote-container">
+                <img
+                    src="https://media.licdn.com/dms/image/v2/D4E03AQEOsV5WC_DC4g/profile-displayphoto-scale_200_200/B4EZqcA6R9HoAY-/0/1763554078281?e=1778112000&amp;v=beta&amp;t=qbashUMmRG-8ig30EjcwF649wNACKOEvit-oJCzbsUc"
+                    alt="Ignacio Gimenez Zapiola"
+                    class="profile-photo"
+                >
+
+                <blockquote class="quote-text">
+                    "A lo largo de estos años en la industria veo que los desafíos son similares para todos los medios de la región. Esas similitudes me han hecho concluir que con mi experiencia y equipo puedo ofrecer un servicio sólido de transformación para varios actores dentro de LATAM."
+                </blockquote>
+            </div>
+
+            <div class="experience-grid">
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-award"></i></div>
+                    <h3>Liderazgo Validado</h3>
+                    <p>He desempeñado la función de director de marketing y director comercial en <strong>Clarín</strong> de Argentina. También lideré <strong>El Comercio</strong> de Perú como gerente general. Tengo experiencia real ejecutando la transformación.</p>
+                </div>
+
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-handshake-angle"></i></div>
+                    <h3>Involucramiento Real</h3>
+                    <p>Aseguro el éxito mediante mi participación directa y un equipo de especialistas de élite. Transformación activa en la ejecución.</p>
+                </div>
+
+                <div class="tile">
+                    <div class="icon"><i class="fa-solid fa-users-gear"></i></div>
+                    <h3>Desarrollo de Equipos</h3>
+                    <p>Mi intervención deja capacidades instaladas. Formamos equipos preparados para los desafíos futuros, garantizando autonomía operativa.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: MÓDULOS -->
+    <div class="slide-container" id="slide3">
+        <h2 class="slide-title">Módulos de Trabajo y Versatilidad</h2>
+        <div class="slide-subtitle">Intervenciones específicas o transformación estructural profunda.</div>
+
+        <div class="grid-4-cols">
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-users"></i></div>
+                <h3>Suscripciones Digitales</h3>
+                <div class="goal-box"><div class="goal-text">Objetivo: Acelerar el crecimiento y su monetización.</div></div>
+                <ul>
+                    <li>Propuesta de valor</li>
+                    <li>Plan de marketing</li>
+                    <li>Estrategia con la redacción</li>
+                </ul>
+            </div>
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-microchip"></i></div>
+                <h3>Stack Tecnológico</h3>
+                <div class="goal-box"><div class="goal-text">Objetivo: Lograr eficiencias económicas.</div></div>
+                <ul>
+                    <li>Mapeo y costos</li>
+                    <li>Diseño de arquitectura</li>
+                    <li>Implementación de nuevas plataformas escalables</li>
+                </ul>
+            </div>
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
+                <h3>Data &amp; Analytics</h3>
+                <div class="goal-box"><div class="goal-text">Objetivo: Lograr la centralidad del dato.</div></div>
+                <ul>
+                    <li>Construcción del área</li>
+                    <li>Validación de fuentes de datos</li>
+                    <li>Estrategia de monetización de datos</li>
+                </ul>
+            </div>
+
+            <div class="tile">
+                <div class="icon"><i class="fa-solid fa-clapperboard"></i></div>
+                <h3>Streaming</h3>
+                <div class="goal-box"><div class="goal-text">Objetivo: Canales a costo controlado.</div></div>
+                <ul>
+                    <li>Arquitectura técnica</li>
+                    <li>Planificación programas</li>
+                    <li>Soporte para la edición y distribución de programas</li>
+                </ul>
+            </div>
+
+            <div class="reengineering-focus">
+                <div class="icon-large"><i class="fa-solid fa-arrows-spin"></i></div>
+
+                <div class="text-content">
+                    <div class="badge">Estrategia de Negocio</div>
+                    <h3>Reingeniería Integral</h3>
+                    <div class="goal-box"><div class="goal-text">Objetivo: Transformación profunda del modelo.</div></div>
+                    <p>Examen estructural de costos y detección de nuevas oportunidades de ingresos para lograr un modelo sustentable a largo plazo.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
