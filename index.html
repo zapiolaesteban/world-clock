@@ -31,12 +31,52 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .proj-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .proj-label{font-size:11px;font-weight:500;color:var(--mu);letter-spacing:.06em;text-transform:uppercase}
 .rbtn{font-size:11px;padding:6px 12px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--ac);cursor:pointer;font-weight:500;font-family:inherit;min-height:32px;transition:all .15s}.rbtn:active{transform:scale(.96)}
-.proj-cards{display:flex;gap:10px;margin-bottom:14px;align-items:stretch}
+.proj-cards{display:flex;gap:10px;margin-bottom:14px;align-items:stretch;position:relative}
 @media(max-width:520px){.proj-cards{flex-direction:column}}
-.pcard{flex:1;min-width:0;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
+.pcard{flex:1;min-width:0;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;position:relative}
 .pcard-now{background:var(--nowBg)}.pcard-to{background:var(--card);border:1.5px solid var(--ac)}
-.pcard-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.pcard-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .pcard-lbl-muted{color:var(--fa)}.pcard-lbl-ac{color:var(--ac);font-weight:500}
+/* city selector chip inside the projector cards */
+.city-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;border:1px solid var(--bd);background:var(--sf);color:var(--tx);font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;text-transform:none;letter-spacing:0;line-height:1.2;transition:all .15s;min-height:22px}
+.city-chip:hover{border-color:var(--ac);color:var(--ac)}
+.city-chip:active{transform:scale(.96)}
+.city-chip .cc-flag{font-size:12px}
+.city-chip .cc-caret{color:var(--fa);font-size:9px;margin-left:1px}
+.city-chip.placeholder{border-style:dashed;color:var(--ac);border-color:var(--ac)}
+/* flip button sits between the two pcards */
+.flip-btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:var(--sf);border:1px solid var(--bd);color:var(--mu);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;font-family:inherit;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.light .flip-btn{box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.flip-btn:hover{border-color:var(--ac);color:var(--ac)}
+.flip-btn:active{transform:translate(-50%,-50%) scale(.9)}
+.flip-btn svg{transition:transform .3s}
+.flip-btn:hover svg{transform:rotate(180deg)}
+@media(max-width:520px){
+.flip-btn{left:auto;right:14px;top:50%;transform:translateY(-50%)}
+.flip-btn:active{transform:translateY(-50%) scale(.9)}
+}
+/* pcard overlay picker list */
+.pcard-picker{position:absolute;top:100%;left:0;right:0;margin-top:6px;background:var(--dd);border:1px solid var(--bd);border-radius:10px;z-index:25;max-height:260px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4);-webkit-overflow-scrolling:touch}
+.light .pcard-picker{box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.pcard-picker-srch{position:sticky;top:0;background:var(--dd);padding:10px 10px 8px;border-bottom:1px solid var(--bdL);z-index:1}
+.pcard-picker-srch input{width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:8px;font-size:13px;background:var(--sf);color:var(--tx);font-family:inherit;outline:none}
+.pcard-picker-srch input:focus{border-color:var(--ac)}
+.pcard-picker-item{padding:10px 12px;cursor:pointer;font-size:13px;color:var(--tx);border-bottom:1px solid var(--bdL);display:flex;align-items:center;gap:8px;min-height:40px}
+.pcard-picker-item:last-child{border-bottom:none}
+.pcard-picker-item:hover{background:var(--hover)}
+.pcard-picker-item:active{background:var(--acBg)}
+.pcard-picker-item .pi-meta{margin-left:auto;font-size:11px;color:var(--fa)}
+/* mini copy bar */
+.mini-copy{margin-top:10px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mini-copy-text{flex:1;min-width:140px;font-family:'DM Mono',monospace;font-size:13px;color:var(--tx);font-weight:500;line-height:1.4;word-break:break-word;user-select:all;-webkit-user-select:all}
+.mini-copy-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.mini-flag-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--mu);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;min-height:28px;display:flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap}
+.mini-flag-btn.on{background:var(--acBg);color:var(--acTx);border-color:var(--ac)}
+.mini-flag-btn:active{transform:scale(.95)}
+.mini-cp-btn{padding:6px 12px;border-radius:6px;border:1.5px solid var(--ac);background:var(--acBg);color:var(--acTx);font-size:11px;font-weight:500;cursor:pointer;font-family:inherit;min-height:28px;display:flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap}
+.mini-cp-btn:hover{background:var(--ac);color:#fff}
+.mini-cp-btn:active{transform:scale(.97)}
+.mini-cp-btn.copied{background:var(--ac);color:#fff}
 .pcard-time{font-size:28px;font-weight:500;line-height:1.1}.pcard-tz{font-size:12px;color:var(--mu);font-weight:400;margin-left:4px}.pcard-date{font-size:11px;color:var(--fa);margin-top:3px}
 .pcard-inp{width:100%;padding:4px 0;border:none;font-size:28px;font-weight:500;color:var(--tx);background:transparent;outline:none;line-height:1.1;font-family:'DM Mono',monospace}.pcard-inp::placeholder{color:var(--fa);opacity:.5}.pcard-inp:focus{border-bottom:1.5px solid var(--ac);margin-bottom:-1.5px}
 .pcard-nudge{display:flex;gap:6px;margin-top:6px}
@@ -272,6 +312,7 @@ let editMode=false,copyOnTop=false;
 let drag=null;
 let modalOpen=false,modalSelected=[],modalSearch="";
 let justAddedNames=[];
+let projDir="to",projCity=null,miniFlags=false,miniCopiedUntil=0,projPickerOpen=false;
 const QUICK_ADDS=["Tokyo","London","New York","Paris","Singapore","Dubai","Hong Kong","Berlin"];
 
 function initCities(){const defaults=["Bangalore","Madrid","San Jose","Atlanta"];cities=defaults.map(n=>{const c=CATALOG.find(x=>x.n===n);return c?{...c}:null}).filter(Boolean)}
@@ -299,7 +340,7 @@ function buildTimeString(){const now=new Date();return copySel.map(c=>fmtProjCop
 function moveCity(i,dir){const j=i+dir;if(j<0||j>=cities.length)return;[cities[i],cities[j]]=[cities[j],cities[i]];render()}
 function toggleFW(i){if(!cities[i])return;cities[i].fw=!cities[i].fw;render()}
 function removeCity(i){const removed=cities.splice(i,1)[0];copySel=copySel.filter(c=>c.name!==removed.n);render()}
-function addCity(name){const c=CATALOG.find(x=>x.n===name);if(!c||cities.find(e=>e.n===name))return;cities.unshift({...c});justAddedNames=[name];setTimeout(()=>{justAddedNames=[];render()},2500);searchVal="";searchOpen=false;if(c.la!=null)fetchW(c.n,c.la,c.lo);render()}
+function addCity(name){const c=CATALOG.find(x=>x.n===name);if(!c||cities.find(e=>e.n===name))return;cities.unshift({...c});if(!copySel.find(s=>s.name===c.n))copySel.push({name:c.n,tz:c.t});justAddedNames=[name];setTimeout(()=>{justAddedNames=[];render()},2500);searchVal="";searchOpen=false;if(c.la!=null)fetchW(c.n,c.la,c.lo);render()}
 function addFirst(){const v=searchVal.trim().toLowerCase();if(!v)return;const c=CATALOG.find(x=>x.n.toLowerCase().includes(v)&&!cities.find(e=>e.n===x.n));if(c)addCity(c.n)}
 function addToCopySel(name,tz){if(copySel.find(c=>c.name===name))return;copySel.push({name,tz});copyDD=false;render()}
 function removeFromCopySel(name){copySel=copySel.filter(c=>c.name!==name);render()}
@@ -334,10 +375,70 @@ if(homeW)h+=`<span class="hw"><span>${wIcon(homeW.weathercode,homeW.is_day)}</sp
 h+=`<span class="hspacer"></span><span class="hdate">${fmtDate(now,home.tz)}</span>`;
 h+=`<button class="tbtn" onclick="toggleTheme()" aria-label="Toggle theme">${dark?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'}</button></div>`;
 
-h+=`<div class="proj"><div class="proj-head"><span class="proj-label">Time projector</span><button class="rbtn" onclick="resetNow()">Reset to now</button></div>`;
-h+=`<div class="proj-cards"><div class="pcard pcard-now"><div class="pcard-lbl pcard-lbl-muted">right now in ${home.name}</div><div class="pcard-time mono" style="color:var(--mid)"><span id="proj-now">${fmtHMS(now,home.tz)}</span><span class="pcard-tz">${getTzAbbrev(home.tz,now)}</span></div><div class="pcard-date">${fmtDS(now,home.tz)}</div></div>`;
-h+=`<div class="pcard pcard-to"><div class="pcard-lbl pcard-lbl-ac">project to</div><input type="text" class="pcard-inp" id="pt-input" value="${displayTime(pTime)}" placeholder="e.g. 2pm, 14:30" onfocus="interacting=true;this.select()" onblur="interacting=false;handleTimeInput(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();handleTimeInput(this.value)}else if(event.key==='ArrowUp'){event.preventDefault();nudgeTime(30)}else if(event.key==='ArrowDown'){event.preventDefault();nudgeTime(-30)}"><div class="pcard-nudge"><button class="nudge-btn" onclick="nudgeTime(-30)">&minus; 30m</button><button class="nudge-btn" onclick="nudgeTime(30)">+ 30m</button></div><div class="pcard-date">${fmtDS(now,home.tz)}</div></div></div>`;
-h+=`<div class="presets">${PRESETS.map(p=>`<button class="pbtn${pTime===p.v?" on":""}" onclick="setPT('${p.v}')">${p.l}</button>`).join("")}</div></div>`;
+// ---- build projector ----
+// determine the "other" city (the one being projected to/from)
+if(projCity&&!CATALOG.find(c=>c.n===projCity))projCity=null;
+const otherCity=projCity?(cities.find(c=>c.n===projCity)||CATALOG.find(c=>c.n===projCity)):null;
+const otherTz=otherCity?otherCity.t:null;
+const otherFlag=otherCity?otherCity.f:null;
+const otherName=otherCity?otherCity.n:null;
+// projection direction: "to" means FROM home TO other; "from" means FROM other TO home
+// pTime is always the time entered in the LEFT card (the "from" side)
+const fromIsHome=projDir==="to";
+const fromName=fromIsHome?home.name:(otherName||"\u2014");
+const fromTz=fromIsHome?home.tz:otherTz;
+const fromFlag=fromIsHome?home.flag:otherFlag;
+const toName=fromIsHome?(otherName||"\u2014"):home.name;
+const toTz=fromIsHome?otherTz:home.tz;
+const toFlag=fromIsHome?otherFlag:home.flag;
+// compute the projected time
+let projectedTime=null,projectedAbbr="",projectedDate=null,projectedDC="same",fromAbbr="";
+if(fromTz){fromAbbr=getTzAbbrev(fromTz,now)}
+if(fromTz&&toTz&&pTime){
+const srcNow=new Date(now.toLocaleString("en-US",{timeZone:fromTz}));
+const[h,m]=pTime.split(":").map(Number);
+srcNow.setHours(h,m,0,0);
+const srcOff=getOff(fromTz,now),utcMs=srcNow.getTime()-srcOff*60000,destOff=getOff(toTz,now);
+const destT=new Date(utcMs+destOff*60000);
+projectedDate=destT;
+projectedTime=destT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true}).replace(/\s/g,"").toLowerCase();
+projectedAbbr=getTzAbbrev(toTz,destT);
+const srcDate=srcNow.toLocaleDateString("en-AU",{day:"numeric",month:"short"});
+const destDate=destT.toLocaleDateString("en-AU",{day:"numeric",month:"short"});
+if(srcDate!==destDate){const a=new Date(srcNow);a.setHours(0,0,0,0);const b=new Date(destT);b.setHours(0,0,0,0);projectedDC=b<a?"prev":"next"}
+}
+
+h+=`<div class="proj"><div class="proj-head"><span class="proj-label">Time projector</span><button class="rbtn" onclick="resetProjector()">Reset</button></div>`;
+h+=`<div class="proj-cards">`;
+// FROM card
+h+=`<div class="pcard pcard-now" style="position:relative">`;
+h+=`<div class="pcard-lbl pcard-lbl-muted">from <button class="city-chip" onclick="event.stopPropagation();togglePcardPicker('from')"><span class="cc-flag">${fromFlag||"\ud83c\udf10"}</span>${fromName}<span class="cc-caret">\u25be</span></button></div>`;
+h+=`<input type="text" class="pcard-inp" id="pt-input" value="${displayTime(pTime)}" placeholder="e.g. 9am" onfocus="interacting=true;this.select()" onblur="interacting=false;handleTimeInput(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();handleTimeInput(this.value)}else if(event.key==='ArrowUp'){event.preventDefault();nudgeTime(30)}else if(event.key==='ArrowDown'){event.preventDefault();nudgeTime(-30)}">`;
+h+=`<div class="pcard-tz" style="font-size:11px;color:var(--mu);margin-top:2px">${fromAbbr}</div>`;
+h+=`<div class="pcard-nudge"><button class="nudge-btn" onclick="nudgeTime(-30)">&minus; 30m</button><button class="nudge-btn" onclick="nudgeTime(30)">+ 30m</button></div>`;
+if(projPickerOpen==="from")h+=buildPcardPicker("from");
+h+=`</div>`;
+// flip button
+h+=`<button class="flip-btn" onclick="flipProjDir()" aria-label="Flip direction"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>`;
+// TO card
+h+=`<div class="pcard pcard-to" style="position:relative">`;
+h+=`<div class="pcard-lbl pcard-lbl-ac">to <button class="city-chip${otherCity?'':' placeholder'}" onclick="event.stopPropagation();togglePcardPicker('to')">${otherCity?`<span class="cc-flag">${toFlag||"\ud83c\udf10"}</span>${toName}`:"Select city"}<span class="cc-caret">\u25be</span></button></div>`;
+if(projectedTime){h+=`<div class="pcard-time mono">${projectedTime.replace(/(am|pm)/,'<span class="tile-ampm">$1</span>')}</div>`;h+=`<div class="pcard-tz" style="font-size:11px;color:var(--mu);margin-top:2px">${projectedAbbr}${projectedDC!=="same"?` &middot; <span style="color:var(--ac)">${projectedDC==="next"?"next day":"prev day"}</span>`:""}</div>`}
+else{h+=`<div class="pcard-time mono" style="color:var(--fa);font-size:20px">\u2014</div><div class="pcard-tz" style="font-size:11px;color:var(--fa);margin-top:2px">pick a city</div>`}
+if(projPickerOpen==="to")h+=buildPcardPicker("to");
+h+=`</div>`;
+h+=`</div>`;
+// presets
+h+=`<div class="presets">${PRESETS.map(p=>`<button class="pbtn${pTime===p.v?" on":""}" onclick="setPT('${p.v}')">${p.l}</button>`).join("")}</div>`;
+// mini-copy row (only when there's a projection)
+if(projectedTime&&otherCity){
+const fromStr=fmtMiniCopy(fromTz,pTime,now,fromIsHome?home:otherCity);
+const toStr=fmtMiniCopy(toTz,null,now,fromIsHome?otherCity:home,projectedDate);
+const miniStr=fromStr+" / "+toStr;
+const miniCopied=Date.now()<miniCopiedUntil;
+h+=`<div class="mini-copy"><div class="mini-copy-text">${miniStr}</div><div class="mini-copy-actions"><button class="mini-flag-btn${miniFlags?" on":""}" onclick="miniFlags=!miniFlags;render()">Flags</button><button class="mini-cp-btn${miniCopied?" copied":""}" onclick="copyMini()">${miniCopied?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy'}</button></div></div>`;
+}
+h+=`</div>`;
 
 // ---- build add-city section ----
 const quickList=QUICK_ADDS.filter(n=>!cities.find(c=>c.n===n)).slice(0,6);
@@ -393,7 +494,7 @@ if(copyOnTop){h+=composerHTML+searchHTML+tilesHTML}
 else{h+=searchHTML+tilesHTML+composerHTML}
 
 h+=`<div class="wstrip"><span>Weather ${weatherTS?"updated "+weatherTS:"loading..."}</span><button class="rbtn" onclick="fetchAllWeather()">Refresh</button></div>`;
-h+=`<div class="footer">All times update live &middot; Offsets from ${home.name} &middot; v2.1</div>`;
+h+=`<div class="footer">All times update live &middot; Offsets from ${home.name} &middot; v2.3</div>`;
 if(editMode)h+=`<button class="done-float" onclick="toggleEdit()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Done</button>`;
 
 // ---- modal (city picker) ----
@@ -411,6 +512,72 @@ function setPT(v){pTime=v;render()}
 function handleTimeInput(v){const parsed=parseTime(v);if(parsed){try{document.activeElement.blur()}catch{}pTime=parsed;render()}else{const el=document.getElementById("pt-input");if(el)el.value=displayTime(pTime)}}
 function nudgeTime(minutes){const[h,m]=pTime.split(":").map(Number);let total=h*60+m+minutes;if(total<0)total+=1440;if(total>=1440)total-=1440;const nh=Math.floor(total/60),nm=total%60;setPT(`${String(nh).padStart(2,"0")}:${String(nm).padStart(2,"0")}`)}
 function resetNow(){setPT(getHHMM(home.tz))}
+function resetProjector(){pTime=getHHMM(home.tz);projDir="to";render()}
+function flipProjDir(){projDir=projDir==="to"?"from":"to";render()}
+function togglePcardPicker(side){projPickerOpen=projPickerOpen===side?false:side;render();if(projPickerOpen)setTimeout(()=>{const s=document.getElementById("pcard-picker-srch");if(s)s.focus()},50)}
+function closePcardPicker(){projPickerOpen=false;render()}
+function selectProjCity(name,side){
+const c=CATALOG.find(x=>x.n===name)||cities.find(x=>x.n===name);if(!c)return;
+// side tells us which slot is being filled; the OTHER slot is home
+// "to" picker means the user is choosing the destination when projDir===to, or the source when projDir===from
+// Simpler rule: we always set projCity = the picked city; direction stays as is unless user was picking HOME slot
+if((side==="from"&&projDir==="to")||(side==="to"&&projDir==="from")){
+// user is replacing home slot with a city — flip direction and set that city
+projDir=projDir==="to"?"from":"to"
+}
+projCity=c.n;projPickerOpen=false;render()}
+
+function buildPcardPicker(side){
+// list: all catalog cities (sorted), with already-pinned cities showing first
+const pinnedSet=new Set(cities.map(c=>c.n));
+const pinned=[...cities].filter(c=>c.n!==home.name);
+const rest=CATALOG.filter(c=>!pinnedSet.has(c.n)&&c.n!==home.name).sort((a,b)=>a.n.localeCompare(b.n));
+const now=new Date();
+let h=`<div class="pcard-picker" onclick="event.stopPropagation()">`;
+h+=`<div class="pcard-picker-srch"><input id="pcard-picker-srch" type="text" placeholder="Search..." autocomplete="off" oninput="filterPcardPicker(this.value)"></div>`;
+h+=`<div id="pcard-picker-list">`;
+if(pinned.length>0){h+=`<div style="padding:8px 12px 4px;font-size:10px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;font-weight:500">Your cities</div>`;
+pinned.forEach(c=>{const safe=c.n.replace(/'/g,"\\'");h+=`<div class="pcard-picker-item" data-name="${c.n.toLowerCase()}" data-country="${c.c.toLowerCase()}" onclick="selectProjCity('${safe}','${side}')"><span>${c.f}</span><span style="flex:1">${c.n}</span><span class="pi-meta">${diffStr(c.t,now)}</span></div>`});
+h+=`<div style="padding:8px 12px 4px;font-size:10px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;font-weight:500">All cities</div>`}
+rest.forEach(c=>{const safe=c.n.replace(/'/g,"\\'");h+=`<div class="pcard-picker-item" data-name="${c.n.toLowerCase()}" data-country="${c.c.toLowerCase()}" onclick="selectProjCity('${safe}','${side}')"><span>${c.f}</span><span style="flex:1">${c.n}</span><span class="pi-meta">${diffStr(c.t,now)}</span></div>`});
+h+=`</div></div>`;
+return h}
+
+function filterPcardPicker(v){
+const q=(v||"").toLowerCase().trim();
+document.querySelectorAll(".pcard-picker-item").forEach(item=>{
+const name=item.dataset.name||"",country=item.dataset.country||"";
+const matches=!q||name.includes(q)||country.includes(q)||(q.length>=2&&fuzzyMatch(q,name));
+item.style.display=matches?"":"none"})}
+
+function fmtMiniCopy(tz,pT,now,cityObj,projectedDateOverride){
+// Produce "9am AEST" style string for mini copy
+let dateObj;
+if(projectedDateOverride)dateObj=projectedDateOverride;
+else if(pT){const hN=new Date(now.toLocaleString("en-US",{timeZone:tz}));const[h,m]=pT.split(":").map(Number);hN.setHours(h,m,0,0);dateObj=hN}
+else dateObj=now;
+const timeStr=dateObj.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:pT?undefined:tz}).replace(/\s/g,"").toLowerCase();
+const abbr=getTzAbbrev(tz,dateObj);
+const flag=miniFlags?(cityObj?.f||cityObj?.flag||"\ud83c\udf10")+" ":"";
+return flag+timeStr+" "+abbr}
+
+function copyMini(){
+const now=new Date();
+const otherCity=projCity?(cities.find(c=>c.n===projCity)||CATALOG.find(c=>c.n===projCity)):null;if(!otherCity)return;
+const fromIsHome=projDir==="to";
+const fromTz=fromIsHome?home.tz:otherCity.t;
+const toTz=fromIsHome?otherCity.t:home.tz;
+const fromCityObj=fromIsHome?home:otherCity;
+const toCityObj=fromIsHome?otherCity:home;
+// compute destination date
+const srcNow=new Date(now.toLocaleString("en-US",{timeZone:fromTz}));
+const[h,m]=pTime.split(":").map(Number);srcNow.setHours(h,m,0,0);
+const srcOff=getOff(fromTz,now),utcMs=srcNow.getTime()-srcOff*60000,destOff=getOff(toTz,now);
+const destT=new Date(utcMs+destOff*60000);
+const fromStr=fmtMiniCopy(fromTz,pTime,now,fromCityObj);
+const toStr=fmtMiniCopy(toTz,null,now,toCityObj,destT);
+const str=fromStr+" / "+toStr;
+navigator.clipboard.writeText(str).then(()=>{miniCopiedUntil=Date.now()+2000;render()}).catch(()=>{const ta=document.createElement("textarea");ta.value=str;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);miniCopiedUntil=Date.now()+2000;render()})}
 
 // ---- city picker modal ----
 function buildModalHTML(){
@@ -450,6 +617,7 @@ const toAdd=modalSelected.slice();
 modalOpen=false;modalSelected=[];modalSearch="";
 const newCities=toAdd.map(name=>CATALOG.find(x=>x.n===name)).filter(c=>c&&!cities.find(e=>e.n===c.n)).map(c=>({...c}));
 cities=[...newCities,...cities];
+newCities.forEach(c=>{if(!copySel.find(s=>s.name===c.n))copySel.push({name:c.n,tz:c.t})});
 justAddedNames=newCities.map(c=>c.n);
 setTimeout(()=>{justAddedNames=[];render()},2500);
 newCities.forEach(c=>{if(c.la!=null)fetchW(c.n,c.la,c.lo)});
@@ -582,10 +750,12 @@ drag=null;interacting=false;render()}
 try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;const meta=TZ_META[tz];if(meta){home={name:meta.name,tz,flag:meta.flag,lat:meta.lat,lon:meta.lon}}else{const city=tz.split("/").pop().replace(/_/g," ");home={...HOME_DEFAULT,name:city,tz,flag:CATALOG.find(x=>x.t===tz)?.f||"\ud83c\udf10"}}}catch{}
 pTime=getHHMM(home.tz);
 initCities();initCopySel();
+if(!projCity&&cities.length>0)projCity=cities[0].n;
 
 document.addEventListener("click",e=>{
 if(copyDD&&!e.target.closest(".chip-add-wrap")){copyDD=false;render()}
 if(searchOpen&&!e.target.closest(".add-strip")&&!e.target.closest(".dd-list")){searchOpen=false;render()}
+if(projPickerOpen&&!e.target.closest(".pcard-picker")&&!e.target.closest(".city-chip")){projPickerOpen=false;render()}
 });
 
 fetchAllWeather();
