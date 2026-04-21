@@ -77,6 +77,26 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .mini-cp-btn:hover{background:var(--ac);color:#fff}
 .mini-cp-btn:active{transform:scale(.97)}
 .mini-cp-btn.copied{background:var(--ac);color:#fff}
+/* extra destination mini-cards stacked under the primary */
+.extra-dests{margin-top:12px;padding-top:12px;border-top:1px solid var(--bdL);display:flex;flex-direction:column;gap:6px}
+.dest-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;position:relative}
+.dest-chip .dc-flag{font-size:14px;flex-shrink:0}
+.dest-chip .dc-main{flex:1;min-width:0}
+.dest-chip .dc-name{font-size:11px;color:var(--mu);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dest-chip .dc-time{font-size:14px;font-weight:500;color:var(--tx);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dest-chip .dc-abbr{font-size:10px;color:var(--fa);font-weight:400;margin-left:2px}
+.dest-chip .dc-day{font-size:9px;padding:1px 5px;border-radius:4px;margin-left:5px;font-weight:500}
+.dest-chip .dc-day.next{background:var(--dNbg);color:var(--dNc)}
+.dest-chip .dc-day.prev{background:var(--dPbg);color:var(--dPc)}
+.dest-chip .dc-x{background:none;border:none;color:var(--fa);font-size:17px;cursor:pointer;padding:2px 6px;line-height:1;min-width:26px;min-height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-family:inherit}
+.dest-chip .dc-x:hover{color:#E24B4A;background:rgba(226,75,74,.1)}
+.dest-chip .dc-x:active{transform:scale(.9)}
+.dest-add{background:transparent;border:1px dashed var(--bd);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--mu);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px;transition:all .15s;min-height:32px;font-weight:500}
+.dest-add:hover{border-color:var(--ac);color:var(--ac);background:var(--acBg)}
+.dest-add:active{transform:scale(.98)}
+.pcard-picker-item.used{opacity:.45;cursor:default}
+.pcard-picker-item.used:hover{background:transparent}
+.pcard-picker-item .pi-check{color:var(--ac);font-weight:700;font-size:14px}
 .pcard-time{font-size:28px;font-weight:500;line-height:1.1}.pcard-tz{font-size:12px;color:var(--mu);font-weight:400;margin-left:4px}.pcard-date{font-size:11px;color:var(--fa);margin-top:3px}
 .pcard-inp{width:100%;padding:4px 0;border:none;font-size:28px;font-weight:500;color:var(--tx);background:transparent;outline:none;line-height:1.1;font-family:'DM Mono',monospace}.pcard-inp::placeholder{color:var(--fa);opacity:.5}.pcard-inp:focus{border-bottom:1.5px solid var(--ac);margin-bottom:-1.5px}
 .pcard-nudge{display:flex;gap:6px;margin-top:6px}
@@ -97,6 +117,14 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 
 /* cities section header + edit pencil */
 .cities-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 2px}
+/* dashboard section separator & header */
+.section-divider{margin:28px 0 20px;display:flex;align-items:center;padding:0 2px}
+.section-divider-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--bd) 20%,var(--bd) 80%,transparent)}
+.dash-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;padding:0 2px}
+.dash-hdr-left{flex:1;min-width:0}
+.dash-title{font-size:17px;font-weight:600;color:var(--tx);letter-spacing:-.01em;margin:0;line-height:1.2}
+.dash-sub{font-size:12px;color:var(--mu);margin-top:3px;font-weight:400;line-height:1.3}
+@media(max-width:480px){.dash-title{font-size:15px}.dash-sub{font-size:11px}}
 .section-label{font-size:11px;font-weight:500;color:var(--mu);letter-spacing:.06em;text-transform:uppercase}
 .section-count{color:var(--fa);margin-left:6px;font-weight:400}
 .edit-pencil{background:transparent;border:none;color:var(--mu);cursor:pointer;padding:6px;min-width:30px;min-height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px;transition:all .15s;font-family:inherit}
@@ -312,7 +340,7 @@ let editMode=false,copyOnTop=false;
 let drag=null;
 let modalOpen=false,modalSelected=[],modalSearch="";
 let justAddedNames=[];
-let projDir="to",projCity=null,miniFlags=false,miniCopiedUntil=0,projPickerOpen=false;
+let projDir="to",projCities=[],miniFlags=false,miniCopiedUntil=0,projPickerOpen=false;
 const QUICK_ADDS=["Tokyo","London","New York","Paris","Singapore","Dubai","Hong Kong","Berlin"];
 
 function initCities(){const defaults=["Bangalore","Madrid","San Jose","Atlanta"];cities=defaults.map(n=>{const c=CATALOG.find(x=>x.n===n);return c?{...c}:null}).filter(Boolean)}
@@ -376,37 +404,36 @@ h+=`<span class="hspacer"></span><span class="hdate">${fmtDate(now,home.tz)}</sp
 h+=`<button class="tbtn" onclick="toggleTheme()" aria-label="Toggle theme">${dark?'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>':'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'}</button></div>`;
 
 // ---- build projector ----
-// determine the "other" city (the one being projected to/from)
-if(projCity&&!CATALOG.find(c=>c.n===projCity))projCity=null;
-const otherCity=projCity?(cities.find(c=>c.n===projCity)||CATALOG.find(c=>c.n===projCity)):null;
-const otherTz=otherCity?otherCity.t:null;
-const otherFlag=otherCity?otherCity.f:null;
-const otherName=otherCity?otherCity.n:null;
-// projection direction: "to" means FROM home TO other; "from" means FROM other TO home
-// pTime is always the time entered in the LEFT card (the "from" side)
+// filter out any stale names
+projCities=projCities.filter(n=>!!CATALOG.find(c=>c.n===n));
+// primary destination = first in array
+const primaryCity=projCities.length?(cities.find(c=>c.n===projCities[0])||CATALOG.find(c=>c.n===projCities[0])):null;
+// direction: "to" = from home to projCities; "from" = from primaryCity to home (extras still projected from same source)
 const fromIsHome=projDir==="to";
-const fromName=fromIsHome?home.name:(otherName||"\u2014");
-const fromTz=fromIsHome?home.tz:otherTz;
-const fromFlag=fromIsHome?home.flag:otherFlag;
-const toName=fromIsHome?(otherName||"\u2014"):home.name;
-const toTz=fromIsHome?otherTz:home.tz;
-const toFlag=fromIsHome?otherFlag:home.flag;
-// compute the projected time
-let projectedTime=null,projectedAbbr="",projectedDate=null,projectedDC="same",fromAbbr="";
-if(fromTz){fromAbbr=getTzAbbrev(fromTz,now)}
-if(fromTz&&toTz&&pTime){
+const fromName=fromIsHome?home.name:(primaryCity?primaryCity.n:"\u2014");
+const fromTz=fromIsHome?home.tz:(primaryCity?primaryCity.t:null);
+const fromFlag=fromIsHome?home.flag:(primaryCity?primaryCity.f:null);
+// helper to project pTime from fromTz to a given target tz
+function projectTo(targetTz){
+if(!fromTz||!targetTz||!pTime)return null;
 const srcNow=new Date(now.toLocaleString("en-US",{timeZone:fromTz}));
-const[h,m]=pTime.split(":").map(Number);
-srcNow.setHours(h,m,0,0);
-const srcOff=getOff(fromTz,now),utcMs=srcNow.getTime()-srcOff*60000,destOff=getOff(toTz,now);
+const[h,m]=pTime.split(":").map(Number);srcNow.setHours(h,m,0,0);
+const srcOff=getOff(fromTz,now),utcMs=srcNow.getTime()-srcOff*60000,destOff=getOff(targetTz,now);
 const destT=new Date(utcMs+destOff*60000);
-projectedDate=destT;
-projectedTime=destT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true}).replace(/\s/g,"").toLowerCase();
-projectedAbbr=getTzAbbrev(toTz,destT);
+const timeStr=destT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true}).replace(/\s/g,"").toLowerCase();
+const abbr=getTzAbbrev(targetTz,destT);
 const srcDate=srcNow.toLocaleDateString("en-AU",{day:"numeric",month:"short"});
 const destDate=destT.toLocaleDateString("en-AU",{day:"numeric",month:"short"});
-if(srcDate!==destDate){const a=new Date(srcNow);a.setHours(0,0,0,0);const b=new Date(destT);b.setHours(0,0,0,0);projectedDC=b<a?"prev":"next"}
-}
+let dc="same";if(srcDate!==destDate){const a=new Date(srcNow);a.setHours(0,0,0,0);const b=new Date(destT);b.setHours(0,0,0,0);dc=b<a?"prev":"next"}
+return{time:timeStr,abbr,dc,date:destT}}
+// compute primary projection
+const primaryTz=fromIsHome?(primaryCity?primaryCity.t:null):home.tz;
+const primaryFlag=fromIsHome?(primaryCity?primaryCity.f:null):home.flag;
+const primaryName=fromIsHome?(primaryCity?primaryCity.n:"\u2014"):home.name;
+const primaryProj=projectTo(primaryTz);
+const fromAbbr=fromTz?getTzAbbrev(fromTz,now):"";
+// extras: only when projecting FROM home TO multiple cities (direction "to")
+const extraCities=fromIsHome?projCities.slice(1).map(n=>cities.find(c=>c.n===n)||CATALOG.find(c=>c.n===n)).filter(Boolean):[];
 
 h+=`<div class="proj"><div class="proj-head"><span class="proj-label">Time projector</span><button class="rbtn" onclick="resetProjector()">Reset</button></div>`;
 h+=`<div class="proj-cards">`;
@@ -422,19 +449,33 @@ h+=`</div>`;
 h+=`<button class="flip-btn" onclick="flipProjDir()" aria-label="Flip direction"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>`;
 // TO card
 h+=`<div class="pcard pcard-to" style="position:relative">`;
-h+=`<div class="pcard-lbl pcard-lbl-ac">to <button class="city-chip${otherCity?'':' placeholder'}" onclick="event.stopPropagation();togglePcardPicker('to')">${otherCity?`<span class="cc-flag">${toFlag||"\ud83c\udf10"}</span>${toName}`:"Select city"}<span class="cc-caret">\u25be</span></button></div>`;
-if(projectedTime){h+=`<div class="pcard-time mono">${projectedTime.replace(/(am|pm)/,'<span class="tile-ampm">$1</span>')}</div>`;h+=`<div class="pcard-tz" style="font-size:11px;color:var(--mu);margin-top:2px">${projectedAbbr}${projectedDC!=="same"?` &middot; <span style="color:var(--ac)">${projectedDC==="next"?"next day":"prev day"}</span>`:""}</div>`}
+h+=`<div class="pcard-lbl pcard-lbl-ac">to <button class="city-chip${primaryCity||!fromIsHome?'':' placeholder'}" onclick="event.stopPropagation();togglePcardPicker('to')">${(primaryCity||!fromIsHome)?`<span class="cc-flag">${primaryFlag||"\ud83c\udf10"}</span>${primaryName}`:"Select city"}<span class="cc-caret">\u25be</span></button></div>`;
+if(primaryProj){h+=`<div class="pcard-time mono">${primaryProj.time.replace(/(am|pm)/,'<span class="tile-ampm">$1</span>')}</div>`;h+=`<div class="pcard-tz" style="font-size:11px;color:var(--mu);margin-top:2px">${primaryProj.abbr}${primaryProj.dc!=="same"?` &middot; <span style="color:var(--ac)">${primaryProj.dc==="next"?"next day":"prev day"}</span>`:""}</div>`}
 else{h+=`<div class="pcard-time mono" style="color:var(--fa);font-size:20px">\u2014</div><div class="pcard-tz" style="font-size:11px;color:var(--fa);margin-top:2px">pick a city</div>`}
+// extra destination mini-cards
+if(fromIsHome&&(extraCities.length>0||primaryCity)){
+h+=`<div class="extra-dests">`;
+extraCities.forEach(c=>{
+const p=projectTo(c.t);if(!p)return;
+h+=`<div class="dest-chip"><span class="dc-flag">${c.f}</span><div class="dc-main"><div class="dc-name">${c.n}</div><div class="dc-time mono">${p.time} <span class="dc-abbr">${p.abbr}</span>${p.dc!=="same"?`<span class="dc-day ${p.dc==="next"?"next":"prev"}">${p.dc==="next"?"+1d":"-1d"}</span>`:""}</div></div><button class="dc-x" onclick="event.stopPropagation();removeProjCity('${c.n.replace(/'/g,"\\'")}')" aria-label="Remove">&times;</button></div>`});
+h+=`<button class="dest-add" onclick="event.stopPropagation();togglePcardPicker('add')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add city</button>`;
+if(projPickerOpen==="add")h+=buildPcardPicker("add");
+h+=`</div>`}
 if(projPickerOpen==="to")h+=buildPcardPicker("to");
 h+=`</div>`;
 h+=`</div>`;
 // presets
 h+=`<div class="presets">${PRESETS.map(p=>`<button class="pbtn${pTime===p.v?" on":""}" onclick="setPT('${p.v}')">${p.l}</button>`).join("")}</div>`;
-// mini-copy row (only when there's a projection)
-if(projectedTime&&otherCity){
-const fromStr=fmtMiniCopy(fromTz,pTime,now,fromIsHome?home:otherCity);
-const toStr=fmtMiniCopy(toTz,null,now,fromIsHome?otherCity:home,projectedDate);
-const miniStr=fromStr+" / "+toStr;
+// mini-copy row
+if(primaryProj&&primaryCity){
+const parts=[];
+// source (from) always first
+parts.push(fmtMiniCopy(fromTz,pTime,now,fromIsHome?home:primaryCity));
+// primary target
+parts.push(fmtMiniCopy(primaryTz,null,now,fromIsHome?primaryCity:home,primaryProj.date));
+// extras
+if(fromIsHome){extraCities.forEach(c=>{const p=projectTo(c.t);if(p)parts.push(fmtMiniCopy(c.t,null,now,c,p.date))})}
+const miniStr=parts.join(" / ");
 const miniCopied=Date.now()<miniCopiedUntil;
 h+=`<div class="mini-copy"><div class="mini-copy-text">${miniStr}</div><div class="mini-copy-actions"><button class="mini-flag-btn${miniFlags?" on":""}" onclick="miniFlags=!miniFlags;render()">Flags</button><button class="mini-cp-btn${miniCopied?" copied":""}" onclick="copyMini()">${miniCopied?'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Copied':'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy'}</button></div></div>`;
 }
@@ -448,7 +489,8 @@ if(quickList.length>0){searchHTML+=`<div class="quick-adds">`;quickList.forEach(
 searchHTML+=`</div>`;
 
 // ---- build tiles section ----
-let tilesHTML=`<div class="cities-hdr"><span class="section-label">Cities <span class="section-count">${cities.length}</span></span>${cities.length>0?`<button class="edit-pencil" onclick="toggleEdit()" aria-label="${editMode?'Done':'Edit'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>`:""}</div>`;
+let tilesHTML=`<div class="section-divider"><div class="section-divider-line"></div></div>`;
+tilesHTML+=`<div class="dash-hdr"><div class="dash-hdr-left"><h2 class="dash-title">World Clock Dashboard</h2><p class="dash-sub">Live times across ${cities.length} ${cities.length===1?"city":"cities"} \u00b7 projected to your selected time</p></div>${cities.length>0?`<button class="edit-pencil" onclick="toggleEdit()" aria-label="${editMode?'Done':'Edit'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>`:""}</div>`;
 tilesHTML+=`<div class="tiles" id="tiles-grid">`;
 cities.forEach((city,i)=>{
 const p=doProj(city.t,pTime,now);const w=weather[city.n];
@@ -494,7 +536,7 @@ if(copyOnTop){h+=composerHTML+searchHTML+tilesHTML}
 else{h+=searchHTML+tilesHTML+composerHTML}
 
 h+=`<div class="wstrip"><span>Weather ${weatherTS?"updated "+weatherTS:"loading..."}</span><button class="rbtn" onclick="fetchAllWeather()">Refresh</button></div>`;
-h+=`<div class="footer">All times update live &middot; Offsets from ${home.name} &middot; v2.3</div>`;
+h+=`<div class="footer">All times update live &middot; Offsets from ${home.name} &middot; v2.5</div>`;
 if(editMode)h+=`<button class="done-float" onclick="toggleEdit()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Done</button>`;
 
 // ---- modal (city picker) ----
@@ -512,34 +554,40 @@ function setPT(v){pTime=v;render()}
 function handleTimeInput(v){const parsed=parseTime(v);if(parsed){try{document.activeElement.blur()}catch{}pTime=parsed;render()}else{const el=document.getElementById("pt-input");if(el)el.value=displayTime(pTime)}}
 function nudgeTime(minutes){const[h,m]=pTime.split(":").map(Number);let total=h*60+m+minutes;if(total<0)total+=1440;if(total>=1440)total-=1440;const nh=Math.floor(total/60),nm=total%60;setPT(`${String(nh).padStart(2,"0")}:${String(nm).padStart(2,"0")}`)}
 function resetNow(){setPT(getHHMM(home.tz))}
-function resetProjector(){pTime=getHHMM(home.tz);projDir="to";render()}
+function resetProjector(){pTime=getHHMM(home.tz);projDir="to";projCities=cities.length>0?[cities[0].n]:[];render()}
 function flipProjDir(){projDir=projDir==="to"?"from":"to";render()}
 function togglePcardPicker(side){projPickerOpen=projPickerOpen===side?false:side;render();if(projPickerOpen)setTimeout(()=>{const s=document.getElementById("pcard-picker-srch");if(s)s.focus()},50)}
 function closePcardPicker(){projPickerOpen=false;render()}
 function selectProjCity(name,side){
 const c=CATALOG.find(x=>x.n===name)||cities.find(x=>x.n===name);if(!c)return;
-// side tells us which slot is being filled; the OTHER slot is home
-// "to" picker means the user is choosing the destination when projDir===to, or the source when projDir===from
-// Simpler rule: we always set projCity = the picked city; direction stays as is unless user was picking HOME slot
-if((side==="from"&&projDir==="to")||(side==="to"&&projDir==="from")){
-// user is replacing home slot with a city — flip direction and set that city
-projDir=projDir==="to"?"from":"to"
-}
-projCity=c.n;projPickerOpen=false;render()}
+if(side==="add"){if(!projCities.includes(c.n))projCities.push(c.n)}
+else if((side==="from"&&projDir==="to")||(side==="to"&&projDir==="from")){
+projDir=projDir==="to"?"from":"to";
+projCities=[c.n]}
+else{projCities=[c.n,...projCities.slice(1).filter(n=>n!==c.n)]}
+projPickerOpen=false;render()}
+function removeProjCity(name){projCities=projCities.filter(n=>n!==name);render()}
 
 function buildPcardPicker(side){
-// list: all catalog cities (sorted), with already-pinned cities showing first
 const pinnedSet=new Set(cities.map(c=>c.n));
 const pinned=[...cities].filter(c=>c.n!==home.name);
 const rest=CATALOG.filter(c=>!pinnedSet.has(c.n)&&c.n!==home.name).sort((a,b)=>a.n.localeCompare(b.n));
 const now=new Date();
+const usedSet=new Set(projCities);
 let h=`<div class="pcard-picker" onclick="event.stopPropagation()">`;
 h+=`<div class="pcard-picker-srch"><input id="pcard-picker-srch" type="text" placeholder="Search..." autocomplete="off" oninput="filterPcardPicker(this.value)"></div>`;
 h+=`<div id="pcard-picker-list">`;
+const renderItem=c=>{
+const safe=c.n.replace(/'/g,"\\'");
+const isUsed=side==="add"&&usedSet.has(c.n);
+const cls=isUsed?"pcard-picker-item used":"pcard-picker-item";
+const click=isUsed?"":` onclick="selectProjCity('${safe}','${side}')"`;
+const check=isUsed?`<span class="pi-check">\u2713</span>`:`<span class="pi-meta">${diffStr(c.t,now)}</span>`;
+return `<div class="${cls}" data-name="${c.n.toLowerCase()}" data-country="${c.c.toLowerCase()}"${click}><span>${c.f}</span><span style="flex:1">${c.n}</span>${check}</div>`};
 if(pinned.length>0){h+=`<div style="padding:8px 12px 4px;font-size:10px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;font-weight:500">Your cities</div>`;
-pinned.forEach(c=>{const safe=c.n.replace(/'/g,"\\'");h+=`<div class="pcard-picker-item" data-name="${c.n.toLowerCase()}" data-country="${c.c.toLowerCase()}" onclick="selectProjCity('${safe}','${side}')"><span>${c.f}</span><span style="flex:1">${c.n}</span><span class="pi-meta">${diffStr(c.t,now)}</span></div>`});
+pinned.forEach(c=>{h+=renderItem(c)});
 h+=`<div style="padding:8px 12px 4px;font-size:10px;color:var(--mu);letter-spacing:.06em;text-transform:uppercase;font-weight:500">All cities</div>`}
-rest.forEach(c=>{const safe=c.n.replace(/'/g,"\\'");h+=`<div class="pcard-picker-item" data-name="${c.n.toLowerCase()}" data-country="${c.c.toLowerCase()}" onclick="selectProjCity('${safe}','${side}')"><span>${c.f}</span><span style="flex:1">${c.n}</span><span class="pi-meta">${diffStr(c.t,now)}</span></div>`});
+rest.forEach(c=>{h+=renderItem(c)});
 h+=`</div></div>`;
 return h}
 
@@ -563,20 +611,21 @@ return flag+timeStr+" "+abbr}
 
 function copyMini(){
 const now=new Date();
-const otherCity=projCity?(cities.find(c=>c.n===projCity)||CATALOG.find(c=>c.n===projCity)):null;if(!otherCity)return;
+const primary=projCities.length?(cities.find(c=>c.n===projCities[0])||CATALOG.find(c=>c.n===projCities[0])):null;
+if(!primary)return;
 const fromIsHome=projDir==="to";
-const fromTz=fromIsHome?home.tz:otherCity.t;
-const toTz=fromIsHome?otherCity.t:home.tz;
-const fromCityObj=fromIsHome?home:otherCity;
-const toCityObj=fromIsHome?otherCity:home;
-// compute destination date
-const srcNow=new Date(now.toLocaleString("en-US",{timeZone:fromTz}));
-const[h,m]=pTime.split(":").map(Number);srcNow.setHours(h,m,0,0);
-const srcOff=getOff(fromTz,now),utcMs=srcNow.getTime()-srcOff*60000,destOff=getOff(toTz,now);
-const destT=new Date(utcMs+destOff*60000);
-const fromStr=fmtMiniCopy(fromTz,pTime,now,fromCityObj);
-const toStr=fmtMiniCopy(toTz,null,now,toCityObj,destT);
-const str=fromStr+" / "+toStr;
+const fromTz=fromIsHome?home.tz:primary.t;
+const fromCityObj=fromIsHome?home:primary;
+// helper
+function proj(tz){const srcNow=new Date(now.toLocaleString("en-US",{timeZone:fromTz}));const[h,m]=pTime.split(":").map(Number);srcNow.setHours(h,m,0,0);const srcOff=getOff(fromTz,now),utcMs=srcNow.getTime()-srcOff*60000,destOff=getOff(tz,now);return new Date(utcMs+destOff*60000)}
+const parts=[fmtMiniCopy(fromTz,pTime,now,fromCityObj)];
+// primary target
+const primaryTz=fromIsHome?primary.t:home.tz;
+const primaryObj=fromIsHome?primary:home;
+parts.push(fmtMiniCopy(primaryTz,null,now,primaryObj,proj(primaryTz)));
+// extras (only when fromIsHome — reverse direction doesn't multi-destination)
+if(fromIsHome){projCities.slice(1).forEach(n=>{const c=cities.find(x=>x.n===n)||CATALOG.find(x=>x.n===n);if(c)parts.push(fmtMiniCopy(c.t,null,now,c,proj(c.t)))})}
+const str=parts.join(" / ");
 navigator.clipboard.writeText(str).then(()=>{miniCopiedUntil=Date.now()+2000;render()}).catch(()=>{const ta=document.createElement("textarea");ta.value=str;ta.style.cssText="position:fixed;opacity:0";document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);miniCopiedUntil=Date.now()+2000;render()})}
 
 // ---- city picker modal ----
@@ -750,7 +799,7 @@ drag=null;interacting=false;render()}
 try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;const meta=TZ_META[tz];if(meta){home={name:meta.name,tz,flag:meta.flag,lat:meta.lat,lon:meta.lon}}else{const city=tz.split("/").pop().replace(/_/g," ");home={...HOME_DEFAULT,name:city,tz,flag:CATALOG.find(x=>x.t===tz)?.f||"\ud83c\udf10"}}}catch{}
 pTime=getHHMM(home.tz);
 initCities();initCopySel();
-if(!projCity&&cities.length>0)projCity=cities[0].n;
+if(projCities.length===0&&cities.length>0)projCities=[cities[0].n];
 
 document.addEventListener("click",e=>{
 if(copyDD&&!e.target.closest(".chip-add-wrap")){copyDD=false;render()}
@@ -764,7 +813,7 @@ setTimeout(()=>{if(!Object.keys(weather).length)fetchAllWeather()},3000);
 setInterval(fetchAllWeather,600000);
 
 render();
-setInterval(()=>{if(interacting||modalOpen)tick();else render()},1000);
+setInterval(()=>{if(interacting||modalOpen||projPickerOpen)tick();else render()},1000);
 </script>
 </body>
 </html>
