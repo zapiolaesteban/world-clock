@@ -1,16 +1,43 @@
-<!DOCTYPE html>
-<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Transformación Estratégica para Medios - Ignacio Gimenez Zapiola</title>
+    <meta name="description" content="Propuesta de transformacion estrategica para medios en LATAM por Ignacio Gimenez Zapiola.">
+    <title>Transformación Estratégica para Medios | Ignacio Gimenez Zapiola</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&amp;family=Source+Sans+3:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* CONFIGURACIÓN RESPONSIVA Y ESTILO EJECUTIVO */
         * { box-sizing: border-box; }
+        :root {
+            --bg: #ecf3f8;
+            --bg-soft: #f6f9fc;
+            --surface: #ffffff;
+            --surface-soft: #f3f8fc;
+            --surface-strong: #e1edf6;
+            --ink: #17324a;
+            --ink-soft: #5a6f82;
+            --primary: #1f5f8d;
+            --primary-strong: #143f61;
+            --primary-soft: #c9dceb;
+            --accent: #7fa8c5;
+            --line: #d8e4ed;
+            --shadow: 0 24px 60px rgba(20, 63, 97, 0.12);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
 
         body {
             background-color: #0f172a;
@@ -23,6 +50,35 @@
             color: #1e293b;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            font-family: "Source Sans 3", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(127, 168, 197, 0.18) 0, transparent 30%),
+                radial-gradient(circle at bottom right, rgba(31, 95, 141, 0.12) 0, transparent 32%),
+                linear-gradient(180deg, #edf4f9 0%, #e7f0f6 52%, #f7fafc 100%);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        a:focus-visible {
+            outline: 3px solid rgba(31, 95, 141, 0.28);
+            outline-offset: 3px;
+        }
+
+        .page-shell {
+            width: min(1180px, calc(100% - 32px));
+            margin: 24px auto 40px;
+            display: grid;
+            gap: 24px;
         }
 
         .slide-container {
@@ -30,6 +86,7 @@
             max-width: 1280px;
             min-height: 720px;
             background-color: #ffffff;
+        .panel {
             position: relative;
             overflow: hidden;
             display: flex;
@@ -37,10 +94,21 @@
             padding: clamp(30px, 5%, 60px) clamp(30px, 6%, 80px);
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
             margin-bottom: 40px;
+            background: var(--surface);
+            border: 1px solid rgba(20, 63, 97, 0.08);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            padding: 28px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, #f8fbfd 62%, #edf5fb 100%);
         }
 
         /* ACENTOS VISUALES */
         .slide-container::before {
+        .hero::before,
+        .hero::after {
             content: "";
             position: absolute;
             top: 0;
@@ -49,6 +117,8 @@
             height: 12px;
             background: linear-gradient(90deg, #005088 0%, #C5A059 100%);
             z-index: 10;
+            border-radius: 999px;
+            pointer-events: none;
         }
 
         .bg-element {
@@ -59,6 +129,12 @@
             top: -10%;
             right: -10%;
             z-index: 0;
+        .hero::before {
+            width: 380px;
+            height: 380px;
+            top: -170px;
+            right: -110px;
+            background: rgba(127, 168, 197, 0.18);
         }
 
         /* TIPOGRAFÍA */
@@ -66,14 +142,28 @@
             font-family: 'Merriweather', serif;
             margin: 0;
             color: #005088;
+        .hero::after {
+            width: 220px;
+            height: 220px;
+            bottom: -90px;
+            left: -70px;
+            background: rgba(31, 95, 141, 0.08);
         }
 
         .slide-title {
             font-size: clamp(24px, 4vw, 42px);
             font-weight: 700;
             margin-bottom: 8px;
+        .topbar {
+            position: relative;
             z-index: 2;
             text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 42px;
         }
 
         .slide-subtitle {
@@ -85,35 +175,88 @@
             padding-bottom: 15px;
             z-index: 2;
             font-style: italic;
+        .brand {
+            display: grid;
+            gap: 4px;
         }
 
         p, li {
             font-size: clamp(14px, 1.5vw, 17px);
             line-height: 1.6;
             color: #334155;
+        .brand-label,
+        .eyebrow {
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--ink-soft);
         }
 
         /* PORTADA */
         .title-layout {
             height: 100%;
+        .brand-name {
+            font-family: "Merriweather", serif;
+            font-size: 1.12rem;
+            color: var(--primary-strong);
+        }
+
+        .nav-links {
             display: flex;
             flex-direction: column;
             justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(31, 95, 141, 0.08);
+            color: var(--primary-strong);
+            font-weight: 700;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            background: rgba(31, 95, 141, 0.14);
+            transform: translateY(-1px);
+        }
+
+        .hero-layout {
+            position: relative;
             z-index: 2;
             max-width: 900px;
             flex-grow: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.95fr);
+            gap: 28px;
+            align-items: stretch;
         }
 
         .title-layout h1 {
             font-size: clamp(36px, 6vw, 68px);
             line-height: 1.1;
             margin-bottom: 25px;
+        .hero-copy {
+            display: grid;
+            align-content: center;
+            gap: 24px;
+            padding: 8px 0;
         }
 
         .title-layout .main-subtitle {
             font-size: clamp(18px, 3vw, 30px);
             color: #64748b;
             font-weight: 300;
+        .hero-title {
+            margin: 0;
+            max-width: 12ch;
+            font-family: "Merriweather", serif;
+            font-size: clamp(2.7rem, 5.7vw, 4.9rem);
+            line-height: 1.04;
+            color: var(--primary-strong);
         }
 
         .accent-line {
@@ -121,11 +264,17 @@
             height: 5px;
             background-color: #C5A059;
             margin: 30px 0;
+        .hero-lead {
+            margin: 0;
+            max-width: 58ch;
+            font-size: clamp(1.12rem, 1.8vw, 1.42rem);
+            color: var(--ink-soft);
         }
 
         /* BLOQUE DE CONTACTO (SÓLO SLIDE 1) */
         .contact-block {
             margin-top: 30px;
+        .hero-actions {
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -134,15 +283,53 @@
             padding: 20px;
             border-radius: 8px;
             width: fit-content;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .contact-item {
             display: flex;
+        .button {
+            display: inline-flex;
             align-items: center;
             gap: 15px;
+            gap: 10px;
+            min-height: 48px;
+            padding: 0 18px;
+            border-radius: 999px;
             font-weight: 700;
             font-size: clamp(14px, 1.5vw, 18px);
             color: #1e293b;
+            border: 1px solid transparent;
+            transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button-primary {
+            color: #ffffff;
+            background: var(--primary);
+        }
+
+        .button-secondary {
+            color: var(--primary-strong);
+            background: rgba(31, 95, 141, 0.08);
+            border-color: rgba(31, 95, 141, 0.12);
+        }
+
+        .signal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .signal-card {
+            padding: 16px 18px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--line);
         }
 
         .contact-item i {
@@ -150,10 +337,32 @@
             font-size: 1.2em;
             width: 25px;
             text-align: center;
+        .signal-card strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 1rem;
+            color: var(--primary-strong);
         }
 
         /* QUOTE CON FOTO (SLIDE 2) */
         .quote-container {
+        .signal-card span {
+            display: block;
+            color: var(--ink-soft);
+            font-size: 0.98rem;
+        }
+
+        .contact-panel {
+            display: grid;
+            gap: 18px;
+            align-content: start;
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, #f5f9fc 0%, #eaf2f8 100%);
+            border: 1px solid rgba(20, 63, 97, 0.08);
+        }
+
+        .contact-header {
             display: flex;
             align-items: center;
             gap: clamp(20px, 4%, 40px);
@@ -163,42 +372,106 @@
             margin-bottom: 30px;
             z-index: 2;
             position: relative;
+            gap: 16px;
         }
 
         .profile-photo {
             width: clamp(100px, 15vw, 160px);
             height: clamp(100px, 15vw, 160px);
             border-radius: 50%;
+            width: 92px;
+            height: 92px;
+            border-radius: 24px;
             object-fit: cover;
             border: 5px solid #ffffff;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             flex-shrink: 0;
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 14px 32px rgba(20, 63, 97, 0.14);
+        }
+
+        .contact-header h2 {
+            margin: 0 0 6px;
+            font-family: "Merriweather", serif;
+            font-size: 1.35rem;
+            color: var(--primary-strong);
         }
 
         .quote-text {
             font-size: clamp(16px, 1.8vw, 20px);
             font-style: italic;
             color: #1e293b;
+        .contact-header p {
             margin: 0;
             line-height: 1.6;
+            color: var(--ink-soft);
         }
 
         /* GRID DE TILES (SLIDE 2) */
         .experience-grid {
+        .contact-list {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             width: 100%;
             z-index: 2;
+            gap: 10px;
         }
 
         /* GRID DE MÓDULOS (SLIDE 3) */
         .grid-4-cols {
+        .contact-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(20, 63, 97, 0.08);
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .contact-link:hover {
+            background: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .contact-link i {
+            width: 18px;
+            color: var(--primary);
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .contact-link span {
+            color: var(--ink);
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .contact-note {
+            margin: 0;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: rgba(31, 95, 141, 0.08);
+            color: var(--primary-strong);
+            font-weight: 600;
+        }
+
+        .section {
+            padding: 32px;
+        }
+
+        .section-header {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 15px;
             width: 100%;
             z-index: 2;
+            gap: 10px;
+            margin-bottom: 26px;
+            max-width: 720px;
         }
 
         .tile {
@@ -209,12 +482,22 @@
             display: flex;
             flex-direction: column;
             height: 100%;
+        .section-header h2 {
+            margin: 0;
+            font-family: "Merriweather", serif;
+            font-size: clamp(2rem, 3.6vw, 3rem);
+            line-height: 1.14;
+            color: var(--primary-strong);
         }
 
         .tile .icon {
             font-size: clamp(24px, 3vw, 32px);
             color: #005088;
             margin-bottom: 12px;
+        .section-header p {
+            margin: 0;
+            font-size: 1.12rem;
+            color: var(--ink-soft);
         }
 
         .tile h3 {
@@ -222,7 +505,16 @@
             margin-bottom: 10px;
             min-height: 44px;
             display: flex;
+        .quote-card {
+            display: grid;
+            grid-template-columns: minmax(110px, 148px) minmax(0, 1fr);
+            gap: 24px;
             align-items: center;
+            padding: 24px;
+            margin-bottom: 22px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(180deg, #f8fbfd 0%, #f1f7fb 100%);
+            border-left: 6px solid var(--primary);
         }
 
         .goal-box {
@@ -230,6 +522,10 @@
             padding: 8px;
             border-left: 4px solid #C5A059;
             margin-bottom: 12px;
+        .quote-card .profile-photo {
+            width: 132px;
+            height: 132px;
+            border-radius: 28px;
         }
 
         .goal-text {
@@ -237,17 +533,29 @@
             color: #005088;
             font-size: 12px;
             line-height: 1.3;
+        .quote-card blockquote {
+            margin: 0 0 10px;
+            font-size: clamp(1.12rem, 1.7vw, 1.35rem);
+            line-height: 1.75;
+            color: var(--ink);
         }
 
         .tile ul {
             padding-left: 18px;
+        .quote-caption {
             margin: 0;
+            color: var(--ink-soft);
+            font-weight: 600;
         }
 
         .tile li {
             font-size: 13px;
             margin-bottom: 6px;
             color: #475569;
+        .benefit-grid,
+        .module-grid {
+            display: grid;
+            gap: 18px;
         }
 
         /* REINGENIERÍA INTEGRAL (BARRA DESTACADA) */
@@ -262,38 +570,74 @@
             flex-wrap: wrap;
             gap: clamp(20px, 5%, 40px);
             align-items: center;
+        .benefit-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         .reengineering-focus .icon-large {
             font-size: clamp(40px, 6vw, 60px);
             color: #ffffff;
             opacity: 0.9;
+        .benefit-card,
+        .module-card {
+            height: 100%;
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            background: var(--surface);
+            border: 1px solid var(--line);
         }
 
         .reengineering-focus .text-content {
             flex: 1;
             min-width: 300px;
+        .benefit-icon,
+        .module-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            background: var(--surface-strong);
+            color: var(--primary);
+            font-size: 1.25rem;
         }
 
         .reengineering-focus h3,
         .reengineering-focus p,
         .reengineering-focus .goal-text {
             color: #ffffff;
+        .benefit-card h3,
+        .module-card h3 {
+            margin: 0 0 10px;
+            font-family: "Merriweather", serif;
+            font-size: 1.22rem;
+            color: var(--primary-strong);
         }
 
         .reengineering-focus h3 {
             font-size: clamp(20px, 2.5vw, 28px);
             margin-bottom: 10px;
+        .benefit-card p,
+        .module-card p {
+            margin: 0;
+            color: var(--ink-soft);
+            font-size: 1.03rem;
         }
 
         .reengineering-focus .goal-box {
             background-color: rgba(255, 255, 255, 0.15);
             border-left: 4px solid #C5A059;
+        .section-alt {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, #f6f9fc 100%);
         }
 
         .reengineering-focus p {
             font-size: clamp(14px, 1.4vw, 16px);
             line-height: 1.6;
+        .module-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
         .badge {
@@ -304,6 +648,20 @@
             border-radius: 20px;
             margin-bottom: 10px;
             text-transform: uppercase;
+        .module-card {
+            display: grid;
+            align-content: start;
+            gap: 12px;
+        }
+
+        .module-goal {
+            display: inline-flex;
+            width: fit-content;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(31, 95, 141, 0.09);
+            color: var(--primary-strong);
+            font-size: 0.9rem;
             font-weight: 700;
             display: inline-block;
         }
@@ -312,16 +670,49 @@
         .full-bg {
             background-size: cover;
             background-position: center;
+        .module-card ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 10px;
         }
 
         .overlay {
+        .module-card li {
+            position: relative;
+            padding-left: 18px;
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .module-card li::before {
+            content: "";
             position: absolute;
             top: 0;
+            top: 0.72em;
             left: 0;
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0.8) 60%, rgba(255, 255, 255, 0) 100%);
             z-index: 1;
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--accent);
+            transform: translateY(-50%);
+        }
+
+        .feature-band {
+            margin-top: 22px;
+            padding: 26px;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            gap: 20px;
+            align-items: start;
+            border-radius: var(--radius-lg);
+            background: var(--primary-strong);
+            color: #ffffff;
         }
 
         /* ESTILOS ESPECÍFICOS PARA CUANDO SE IMPRIME/EXPORTA A PDF */
@@ -330,6 +721,11 @@
                 background: none;
                 padding: 0;
             }
+        .feature-band .module-icon {
+            margin: 0;
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+        }
 
             .slide-container {
                 box-shadow: none;
@@ -339,36 +735,96 @@
                 margin: 0;
                 border: none;
             }
+        .feature-band .eyebrow {
+            color: rgba(255, 255, 255, 0.72);
+            margin-bottom: 6px;
+        }
 
             .slide-container::before {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
+        .feature-band h3 {
+            margin: 0 0 10px;
+            font-family: "Merriweather", serif;
+            font-size: clamp(1.5rem, 2.2vw, 2rem);
+            color: #ffffff;
+        }
+
+        .feature-band p {
+            margin: 0;
+            max-width: 60ch;
+            color: rgba(255, 255, 255, 0.84);
+            font-size: 1.04rem;
+        }
+
+        .footer-panel {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 18px;
+            align-items: center;
+            padding: 28px 32px;
+            background: linear-gradient(135deg, #f4f8fb 0%, #e9f1f7 100%);
+        }
+
+        .footer-panel h2 {
+            margin: 0 0 8px;
+            font-family: "Merriweather", serif;
+            font-size: clamp(1.7rem, 3vw, 2.25rem);
+            color: var(--primary-strong);
+        }
+
+        .footer-panel p {
+            margin: 0;
+            color: var(--ink-soft);
+            font-size: 1.06rem;
         }
 
         @media (max-width: 1024px) {
             .grid-4-cols { grid-template-columns: repeat(2, 1fr); }
+        .footer-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
 
         @media (max-width: 768px) {
             body { padding: 10px; }
+        @media (max-width: 1040px) {
+            .hero-layout,
+            .footer-panel {
+                grid-template-columns: 1fr;
+            }
 
             .slide-container {
                 padding: 30px 20px;
                 height: auto;
                 min-height: auto;
                 margin-bottom: 20px;
+            .signal-grid,
+            .benefit-grid,
+            .module-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .quote-container {
                 flex-direction: column;
                 text-align: center;
                 gap: 15px;
+            .footer-actions {
+                justify-content: flex-start;
             }
+        }
 
             .reengineering-focus {
                 flex-direction: column;
                 text-align: center;
+        @media (max-width: 760px) {
+            .page-shell {
+                width: calc(100% - 16px);
+                margin: 12px auto 24px;
+                gap: 16px;
             }
 
             .grid-4-cols { grid-template-columns: 1fr; }
@@ -376,38 +832,70 @@
                 width: 100%;
                 padding: 15px;
                 align-items: flex-start;
+            .hero,
+            .section,
+            .footer-panel {
+                padding: 22px 18px;
+            }
+
+            .topbar {
+                margin-bottom: 28px;
             }
 
             .contact-item {
                 font-size: 14px;
                 word-break: break-word;
+            .hero-title {
+                max-width: 14ch;
             }
 
             .title-layout h1 {
                 font-size: 32px;
                 text-align: left;
+            .signal-grid,
+            .benefit-grid,
+            .module-grid {
+                grid-template-columns: 1fr;
             }
 
             .main-subtitle { font-size: 18px; }
         }
+            .quote-card,
+            .feature-band {
+                grid-template-columns: 1fr;
+            }
 
         @media (max-width: 480px) {
             .slide-title {
                 font-size: 24px;
                 text-align: center;
+            .quote-card .profile-photo {
+                width: 108px;
+                height: 108px;
             }
 
             .slide-subtitle {
                 font-size: 16px;
                 text-align: center;
+            .contact-header {
+                align-items: flex-start;
             }
+        }
 
             .profile-photo {
                 width: 120px;
                 height: 120px;
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
             }
 
             .contact-item { font-size: 13px; }
+            .button,
+            .contact-link,
+            .nav-links a {
+                transition: none;
+            }
         }
     </style>
 </head>
@@ -415,53 +903,149 @@
     <!-- SLIDE 1: PORTADA -->
     <div class="slide-container full-bg" id="slide1" style="background-image: url('https://images.unsplash.com/photo-1451187534959-5e56677c3be0?q=80&amp;w=2070&amp;auto=format&amp;fit=crop');">
         <div class="overlay"></div>
+    <main class="page-shell">
+        <header class="panel hero" id="inicio">
+            <div class="topbar">
+                <div class="brand">
+                    <span class="brand-label">Asesoría ejecutiva para medios</span>
+                    <span class="brand-name">Ignacio Gimenez Zapiola</span>
+                </div>
 
         <div class="title-layout">
             <h1>Transformación Estratégica para Medios en LATAM</h1>
             <div class="accent-line"></div>
             <p class="main-subtitle">Garantizar la sustentabilidad del negocio a largo plazo.</p>
+                <nav class="nav-links" aria-label="Navegación principal">
+                    <a href="#valor">Valor ejecutivo</a>
+                    <a href="#modulos">Módulos</a>
+                    <a href="#contacto">Contacto</a>
+                </nav>
+            </div>
 
             <div class="contact-block">
                 <div class="contact-item">
                     <i class="fa-solid fa-user"></i>
                     <span>Ignacio Gimenez Zapiola</span>
                 </div>
+            <div class="hero-layout">
+                <div class="hero-copy">
+                    <span class="eyebrow">Transformación estratégica en LATAM</span>
+                    <h1 class="hero-title">Medios más sustentables, ordenados y preparados para crecer.</h1>
+                    <p class="hero-lead">
+                        Acompaño a compañías de medios a redefinir prioridades, ejecutar cambios concretos y construir capacidades internas para sostener el negocio a largo plazo.
+                    </p>
 
                 <div class="contact-item">
                     <i class="fa-brands fa-linkedin"></i>
                     <span>linkedin.com/in/ignaciogimenezzapiola</span>
                 </div>
+                    <div class="hero-actions">
+                        <a class="button button-primary" href="#modulos">
+                            <i class="fa-solid fa-arrow-right"></i>
+                            Explorar propuesta
+                        </a>
+                        <a class="button button-secondary" href="mailto:Ignacio.g.zapiola@gmail.com">
+                            <i class="fa-solid fa-envelope"></i>
+                            Conversar
+                        </a>
+                    </div>
 
                 <div class="contact-item">
                     <i class="fa-solid fa-envelope"></i>
                     <span>Ignacio.g.zapiola@gmail.com</span>
+                    <div class="signal-grid" aria-label="Puntos clave de experiencia">
+                        <div class="signal-card">
+                            <strong>Clarín y El Comercio</strong>
+                            <span>Experiencia real liderando transformación en grupos de medios de referencia.</span>
+                        </div>
+                        <div class="signal-card">
+                            <strong>Rol ejecutivo</strong>
+                            <span>Marketing, comercial y gerencia general con foco en ejecución.</span>
+                        </div>
+                        <div class="signal-card">
+                            <strong>Capacidad instalada</strong>
+                            <span>El trabajo deja equipos más autónomos y mejor preparados.</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="contact-item">
                     <i class="fa-solid fa-phone"></i>
                     <span>+5491166307034</span>
                 </div>
+                <aside class="contact-panel" id="contacto" aria-label="Información de contacto">
+                    <div class="contact-header">
+                        <img
+                            src="https://media.licdn.com/dms/image/v2/D4E03AQEOsV5WC_DC4g/profile-displayphoto-scale_200_200/B4EZqcA6R9HoAY-/0/1763554078281?e=1778112000&amp;v=beta&amp;t=qbashUMmRG-8ig30EjcwF649wNACKOEvit-oJCzbsUc"
+                            alt="Ignacio Gimenez Zapiola"
+                            class="profile-photo"
+                        >
+
+                        <div>
+                            <h2>Ignacio Gimenez Zapiola</h2>
+                            <p>Transformación de negocio para medios en LATAM</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-list">
+                        <a class="contact-link" href="https://www.linkedin.com/in/ignaciogimenezzapiola" target="_blank" rel="noreferrer">
+                            <i class="fa-brands fa-linkedin-in"></i>
+                            <span>linkedin.com/in/ignaciogimenezzapiola</span>
+                        </a>
+
+                        <a class="contact-link" href="mailto:Ignacio.g.zapiola@gmail.com">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>Ignacio.g.zapiola@gmail.com</span>
+                        </a>
+
+                        <a class="contact-link" href="tel:+5491166307034">
+                            <i class="fa-solid fa-phone"></i>
+                            <span>+54 9 11 6630 7034</span>
+                        </a>
+                    </div>
+
+                    <p class="contact-note">
+                        Intervención ejecutiva enfocada en resultados, transferencia de conocimiento y autonomía operativa.
+                    </p>
+                </aside>
             </div>
         </div>
     </div>
+        </header>
 
     <!-- SLIDE 2: EJECUCIÓN -->
     <div class="slide-container" id="slide2">
         <div class="bg-element"></div>
         <h2 class="slide-title">Ejecución, Compromiso y Legado</h2>
         <div class="slide-subtitle">Acompañamiento ejecutivo enfocado en la autonomía operativa.</div>
+        <section class="panel section" id="valor">
+            <div class="section-header">
+                <span class="eyebrow">Valor ejecutivo</span>
+                <h2>Ejecución, compromiso y legado para equipos de medios.</h2>
+                <p>
+                    El objetivo no es solo definir un plan. Es acompañar la implementación, ordenar decisiones críticas y dejar capacidades instaladas para que el equipo pueda sostener el cambio.
+                </p>
+            </div>
 
         <div style="z-index: 2; flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
             <div class="quote-container">
+            <div class="quote-card">
                 <img
                     src="https://media.licdn.com/dms/image/v2/D4E03AQEOsV5WC_DC4g/profile-displayphoto-scale_200_200/B4EZqcA6R9HoAY-/0/1763554078281?e=1778112000&amp;v=beta&amp;t=qbashUMmRG-8ig30EjcwF649wNACKOEvit-oJCzbsUc"
                     alt="Ignacio Gimenez Zapiola"
+                    alt="Retrato de Ignacio Gimenez Zapiola"
                     class="profile-photo"
                 >
 
                 <blockquote class="quote-text">
                     "A lo largo de estos años en la industria veo que los desafíos son similares para todos los medios de la región. Esas similitudes me han hecho concluir que con mi experiencia y equipo puedo ofrecer un servicio sólido de transformación para varios actores dentro de LATAM."
                 </blockquote>
+                <div>
+                    <blockquote>
+                        "Los desafíos de los medios en la región son extraordinariamente similares. Esa experiencia acumulada permite ofrecer una transformación sólida, práctica y adaptable para distintos actores de LATAM."
+                    </blockquote>
+                    <p class="quote-caption">Experiencia directa en liderazgo, operación y transformación de negocio.</p>
+                </div>
             </div>
 
             <div class="experience-grid">
@@ -470,18 +1054,40 @@
                     <h3>Liderazgo Validado</h3>
                     <p>He desempeñado la función de director de marketing y director comercial en <strong>Clarín</strong> de Argentina. También lideré <strong>El Comercio</strong> de Perú como gerente general. Tengo experiencia real ejecutando la transformación.</p>
                 </div>
+            <div class="benefit-grid">
+                <article class="benefit-card">
+                    <div class="benefit-icon"><i class="fa-solid fa-award"></i></div>
+                    <h3>Liderazgo validado</h3>
+                    <p>
+                        Trayectoria en posiciones de responsabilidad real dentro de Clarín en Argentina y El Comercio en Perú, con foco en crecimiento, monetización y gestión integral.
+                    </p>
+                </article>
 
                 <div class="tile">
                     <div class="icon"><i class="fa-solid fa-handshake-angle"></i></div>
                     <h3>Involucramiento Real</h3>
                     <p>Aseguro el éxito mediante mi participación directa y un equipo de especialistas de élite. Transformación activa en la ejecución.</p>
                 </div>
+                <article class="benefit-card">
+                    <div class="benefit-icon"><i class="fa-solid fa-handshake-angle"></i></div>
+                    <h3>Involucramiento real</h3>
+                    <p>
+                        Participación directa en la ejecución, con apoyo de especialistas cuando hace falta, para acelerar decisiones y asegurar avances concretos.
+                    </p>
+                </article>
 
                 <div class="tile">
                     <div class="icon"><i class="fa-solid fa-users-gear"></i></div>
                     <h3>Desarrollo de Equipos</h3>
                     <p>Mi intervención deja capacidades instaladas. Formamos equipos preparados para los desafíos futuros, garantizando autonomía operativa.</p>
                 </div>
+                <article class="benefit-card">
+                    <div class="benefit-icon"><i class="fa-solid fa-users-gear"></i></div>
+                    <h3>Capacidades instaladas</h3>
+                    <p>
+                        Cada intervención está diseñada para fortalecer al equipo interno y reducir dependencia futura, dejando una operación más autónoma y sostenible.
+                    </p>
+                </article>
             </div>
         </div>
     </div>
@@ -490,6 +1096,7 @@
     <div class="slide-container" id="slide3">
         <h2 class="slide-title">Módulos de Trabajo y Versatilidad</h2>
         <div class="slide-subtitle">Intervenciones específicas o transformación estructural profunda.</div>
+        </section>
 
         <div class="grid-4-cols">
             <div class="tile">
@@ -501,6 +1108,13 @@
                     <li>Plan de marketing</li>
                     <li>Estrategia con la redacción</li>
                 </ul>
+        <section class="panel section section-alt" id="modulos">
+            <div class="section-header">
+                <span class="eyebrow">Módulos de trabajo</span>
+                <h2>Intervenciones específicas o transformación estructural profunda.</h2>
+                <p>
+                    La propuesta puede desplegarse por frentes puntuales o como una agenda integral de transformación, según la urgencia y madurez de cada organización.
+                </p>
             </div>
 
             <div class="tile">
@@ -513,6 +1127,17 @@
                     <li>Implementación de nuevas plataformas escalables</li>
                 </ul>
             </div>
+            <div class="module-grid">
+                <article class="module-card">
+                    <div class="module-icon"><i class="fa-solid fa-users"></i></div>
+                    <h3>Suscripciones digitales</h3>
+                    <span class="module-goal">Objetivo: acelerar crecimiento y monetización</span>
+                    <ul>
+                        <li>Definición y ajuste de la propuesta de valor</li>
+                        <li>Plan de marketing orientado a conversión y retención</li>
+                        <li>Estrategia de trabajo con la redacción</li>
+                    </ul>
+                </article>
 
             <div class="tile">
                 <div class="icon"><i class="fa-solid fa-chart-line"></i></div>
@@ -524,6 +1149,16 @@
                     <li>Estrategia de monetización de datos</li>
                 </ul>
             </div>
+                <article class="module-card">
+                    <div class="module-icon"><i class="fa-solid fa-microchip"></i></div>
+                    <h3>Stack tecnológico</h3>
+                    <span class="module-goal">Objetivo: ganar eficiencia económica y operativa</span>
+                    <ul>
+                        <li>Mapeo del ecosistema actual y análisis de costos</li>
+                        <li>Diseño de arquitectura y hoja de ruta</li>
+                        <li>Implementación de plataformas escalables</li>
+                    </ul>
+                </article>
 
             <div class="tile">
                 <div class="icon"><i class="fa-solid fa-clapperboard"></i></div>
@@ -534,19 +1169,76 @@
                     <li>Planificación programas</li>
                     <li>Soporte para la edición y distribución de programas</li>
                 </ul>
+                <article class="module-card">
+                    <div class="module-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Data y analytics</h3>
+                    <span class="module-goal">Objetivo: centralidad del dato para decidir mejor</span>
+                    <ul>
+                        <li>Construcción o fortalecimiento del área</li>
+                        <li>Validación de fuentes y calidad de datos</li>
+                        <li>Estrategia de monetización y uso de insights</li>
+                    </ul>
+                </article>
+
+                <article class="module-card">
+                    <div class="module-icon"><i class="fa-solid fa-clapperboard"></i></div>
+                    <h3>Streaming</h3>
+                    <span class="module-goal">Objetivo: canales viables a costo controlado</span>
+                    <ul>
+                        <li>Definición de arquitectura técnica y operación</li>
+                        <li>Planificación de programación y formatos</li>
+                        <li>Soporte para edición y distribución de contenidos</li>
+                    </ul>
+                </article>
             </div>
 
             <div class="reengineering-focus">
                 <div class="icon-large"><i class="fa-solid fa-arrows-spin"></i></div>
+            <aside class="feature-band" aria-label="Reingeniería integral">
+                <div class="module-icon"><i class="fa-solid fa-arrows-spin"></i></div>
 
                 <div class="text-content">
                     <div class="badge">Estrategia de Negocio</div>
                     <h3>Reingeniería Integral</h3>
                     <div class="goal-box"><div class="goal-text">Objetivo: Transformación profunda del modelo.</div></div>
                     <p>Examen estructural de costos y detección de nuevas oportunidades de ingresos para lograr un modelo sustentable a largo plazo.</p>
+                <div>
+                    <span class="eyebrow">Estrategia de negocio</span>
+                    <h3>Reingeniería integral del modelo.</h3>
+                    <p>
+                        Examen estructural de costos, revisión del portafolio de ingresos y detección de nuevas oportunidades para construir un modelo sustentable en el largo plazo.
+                    </p>
                 </div>
+            </aside>
+        </section>
+
+        <section class="panel footer-panel">
+            <div>
+                <h2>Una propuesta diseñada para conversación ejecutiva.</h2>
+                <p>
+                    El nuevo diseño prioriza lectura rápida, mejor contraste, enlaces accionables y una estética corporativa sobria en azules suaves para compartir en GitHub, enviar por link o presentar en reuniones.
+                </p>
+            </div>
+
+            <div class="footer-actions">
+                <a class="button button-primary" href="mailto:Ignacio.g.zapiola@gmail.com">
+                    <i class="fa-solid fa-envelope"></i>
+                    Contactar
+                </a>
+                <a class="button button-secondary" href="#inicio">
+                    <i class="fa-solid fa-arrow-up"></i>
+                    Volver arriba
+                </a>
             </div>
         </div>
     </div>
+        </section>
+    </main>
 </body>
 </html>
+
+
+
+
+Default permissions
+
