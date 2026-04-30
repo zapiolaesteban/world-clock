@@ -99,6 +99,21 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(-
 .pcard-picker-item .pi-check{color:var(--ac);font-weight:700;font-size:14px}
 .pcard-time{font-size:28px;font-weight:500;line-height:1.1}.pcard-tz{font-size:12px;color:var(--mu);font-weight:400;margin-left:4px}.pcard-date{font-size:11px;color:var(--fa);margin-top:3px}
 .pcard-inp{width:100%;padding:4px 0;border:none;font-size:28px;font-weight:500;color:var(--tx);background:transparent;outline:none;line-height:1.1;font-family:'DM Mono',monospace}.pcard-inp::placeholder{color:var(--fa);opacity:.5}.pcard-inp:focus{border-bottom:1.5px solid var(--ac);margin-bottom:-1.5px}
+/* time stepper */
+.time-stepper{display:flex;align-items:center;gap:4px;margin:4px 0 2px;-webkit-user-select:none;user-select:none}
+.ts-seg{display:flex;flex-direction:column;align-items:center;flex-shrink:0;position:relative}
+.ts-seg-ap{flex-direction:row;gap:3px;margin-left:6px}
+.ts-up,.ts-dn{background:transparent;border:none;color:var(--fa);cursor:pointer;padding:2px 8px;font-size:10px;line-height:1;font-family:inherit;border-radius:4px;transition:all .12s;min-height:18px;display:flex;align-items:center;justify-content:center}
+.ts-up:hover,.ts-dn:hover{color:var(--ac);background:var(--acBg)}
+.ts-up:active,.ts-dn:active{transform:scale(.85);color:var(--ac)}
+.ts-val{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:var(--tx);line-height:1;letter-spacing:-.02em;cursor:pointer;padding:2px 6px;border-radius:6px;min-width:42px;text-align:center;transition:background .12s;-webkit-tap-highlight-color:transparent}
+.ts-val:hover{background:var(--hover)}
+.ts-val:active{background:var(--acBg);color:var(--ac)}
+.ts-colon{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;color:var(--tx);line-height:1;align-self:center;margin-bottom:2px;padding:0 2px}
+.ts-ap-btn{background:transparent;border:1px solid var(--bd);color:var(--mu);padding:6px 10px;border-radius:7px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;letter-spacing:.05em;min-height:32px;min-width:38px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.ts-ap-btn:active{transform:scale(.95)}
+.ts-ap-btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+@media(max-width:520px){.ts-val{font-size:28px;min-width:38px}.ts-colon{font-size:26px}.ts-ap-btn{min-height:30px;padding:5px 8px}}
 .pcard-nudge{display:flex;gap:6px;margin-top:6px}
 .nudge-btn{font-size:12px;padding:4px 10px;border-radius:6px;border:1px solid var(--bd);background:transparent;color:var(--mid);cursor:pointer;font-weight:500;font-family:inherit;min-height:28px;transition:all .15s}.nudge-btn:active{transform:scale(.95);background:var(--acBg)}
 .presets{display:flex;gap:5px;flex-wrap:wrap}
@@ -382,15 +397,15 @@ function fmtHMS(d,tz){return new Intl.DateTimeFormat("en-AU",{hour:"2-digit",min
 function fmtDate(d,tz){return new Intl.DateTimeFormat("en-AU",{weekday:"short",day:"numeric",month:"short",year:"numeric",timeZone:tz}).format(d)}
 function fmtDS(d,tz){return new Intl.DateTimeFormat("en-AU",{weekday:"short",day:"numeric",month:"short",timeZone:tz}).format(d)}
 function diffStr(tz,now){const s=getOff(home.tz,now),c=getOff(tz,now),diff=(c-s)/60;if(diff===0)return"same";const abs=Math.abs(diff),h=Math.floor(abs),m=Math.round((abs-h)*60);let r="";if(h>0)r+=h+"h";if(m>0)r+=(r?" ":"")+m+"m";return(diff>0?"+":"\u2212")+r}
-function doProj(targetTz,pT,now){if(!pT)return null;const hN=new Date(now.toLocaleString("en-US",{timeZone:home.tz}));const[h,m]=pT.split(":").map(Number);hN.setHours(h,m,0,0);const hO=getOff(home.tz,now),uMs=hN.getTime()-hO*60000,cO=getOff(targetTz,now);const cT=new Date(uMs+cO*60000);const time=cT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true});const cD=cT.toLocaleDateString("en-AU",{weekday:"short",day:"numeric",month:"short"});const hD=hN.toLocaleDateString("en-AU",{weekday:"short",day:"numeric",month:"short"});let dc="same";if(cD!==hD){const a=new Date(hN);a.setHours(0,0,0,0);const b=new Date(cT);b.setHours(0,0,0,0);dc=b<a?"prev":"next"}return{time,dc}}
+function doProj(targetTz,pT,now){if(!pT)return null;const[h,m]=pT.split(":").map(Number);const dayStr=now.toLocaleDateString("en-CA",{timeZone:home.tz});const homeOff=getOff(home.tz,now);const[Y,Mo,D]=dayStr.split("-").map(Number);const cT=new Date(Date.UTC(Y,Mo-1,D,h,m,0)-homeOff*60000);const time=cT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:targetTz});const homeDay=dayStr;const targetDay=cT.toLocaleDateString("en-CA",{timeZone:targetTz});let dc="same";if(homeDay!==targetDay)dc=targetDay<homeDay?"prev":"next";return{time,dc}}
 function wIcon(code,isDay){if(code==null)return"";if(code===0)return isDay?"\u2600\ufe0f":"\ud83c\udf19";if(code===1)return isDay?"\ud83c\udf24\ufe0f":"\ud83c\udf19";if(code===2)return isDay?"\u26c5":"\u2601\ufe0f";if(code===3)return"\u2601\ufe0f";if(code===45||code===48)return"\ud83c\udf2b\ufe0f";if(code>=51&&code<=57)return"\ud83c\udf26\ufe0f";if(code>=61&&code<=67)return"\ud83c\udf27\ufe0f";if(code>=71&&code<=77)return"\ud83c\udf28\ufe0f";if(code>=80&&code<=82)return"\ud83c\udf26\ufe0f";if(code>=85&&code<=86)return"\ud83c\udf28\ufe0f";if(code>=95)return"\u26c8\ufe0f";return"\u2601\ufe0f"}
 function wText(code){if(code==null)return"";if(code===0)return"Clear";if(code===1)return"Mostly clear";if(code===2)return"Partly cloudy";if(code===3)return"Overcast";if(code===45||code===48)return"Foggy";if(code>=51&&code<=57)return"Drizzle";if(code>=61&&code<=67)return"Rainy";if(code>=71&&code<=77)return"Snowy";if(code>=80&&code<=82)return"Showers";if(code>=85&&code<=86)return"Snow showers";if(code>=95)return"Thunderstorm";return"Cloudy"}
 function badge(dc){const cls=dc==="same"?"badge-s":dc==="prev"?"badge-p":"badge-n";const lbl=dc==="same"?"same day":dc==="prev"?"yesterday":"tomorrow";return`<span class="badge ${cls}">${lbl}</span>`}
 function splitTime(t){if(!t)return{num:"--",ap:""};const m=t.match(/^([\d:]+)\s*(am|pm)$/i);return m?{num:m[1],ap:m[2].toLowerCase()}:{num:t,ap:""}}
-function getProjDate(targetTz,pT,now){if(!pT)return null;const hN=new Date(now.toLocaleString("en-US",{timeZone:home.tz}));const[h,m]=pT.split(":").map(Number);hN.setHours(h,m,0,0);const hO=getOff(home.tz,now),uMs=hN.getTime()-hO*60000,cO=getOff(targetTz,now);return new Date(uMs+cO*60000)}
+function getProjDate(targetTz,pT,now){if(!pT)return null;const[h,m]=pT.split(":").map(Number);const dayStr=now.toLocaleDateString("en-CA",{timeZone:home.tz});const homeOff=getOff(home.tz,now);const[Y,Mo,D]=dayStr.split("-").map(Number);return new Date(Date.UTC(Y,Mo-1,D,h,m,0)-homeOff*60000)}
 function getTzAbbrev(tz,date){const map=TZ_AB[tz];if(map){if(map[0]===map[1])return map[0];const jan=new Date(date.getFullYear(),0,1),jul=new Date(date.getFullYear(),6,1);const janOff=getOff(tz,jan),julOff=getOff(tz,jul);if(janOff===julOff)return map[0];return getOff(tz,date)===Math.max(janOff,julOff)?map[1]:map[0]}try{const parts=new Intl.DateTimeFormat("en-US",{timeZone:tz,timeZoneName:"short"}).formatToParts(date);const p=parts.find(x=>x.type==="timeZoneName");if(p&&!p.value.startsWith("GMT"))return p.value}catch{}return tz.split("/").pop()}
 function getGmtOffset(tz,date){const offMin=getOff(tz,date);const sign=offMin>=0?"+":"-";const abs=Math.abs(offMin);const h=Math.floor(abs/60);const m=abs%60;return m>0?`GMT${sign}${h}:${String(m).padStart(2,"0")}`:`GMT${sign}${h}`}
-function fmtProjCopy(tz,pT,now){const projDate=getProjDate(tz,pT,now);if(!projDate)return null;const time=projDate.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true}).replace(/\s/g,"").toLowerCase();const abbrev=getTzAbbrev(tz,projDate);const gmtOff=getGmtOffset(tz,projDate);let tzLabel;if(showAbbrev&&showGmt)tzLabel=abbrev+" ("+gmtOff+")";else if(showGmt)tzLabel=gmtOff;else tzLabel=abbrev;const hN=new Date(now.toLocaleString("en-US",{timeZone:home.tz}));const[h,m]=pT.split(":").map(Number);hN.setHours(h,m,0,0);const hD=hN.toLocaleDateString("en-US",{day:"numeric",month:"numeric"});const cD=projDate.toLocaleDateString("en-US",{day:"numeric",month:"numeric"});let daySuffix="";if(hD!==cD){const a=new Date(hN);a.setHours(0,0,0,0);const b=new Date(projDate);b.setHours(0,0,0,0);daySuffix=b>a?" (+1 day)":" (-1 day)"}const flag=copyFlags?(CATALOG.find(x=>x.t===tz)?.f||"\ud83c\udf10")+" ":"";return flag+time+" "+tzLabel+daySuffix}
+function fmtProjCopy(tz,pT,now){const projDate=getProjDate(tz,pT,now);if(!projDate)return null;const time=projDate.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:tz}).replace(/\s/g,"").toLowerCase();const abbrev=getTzAbbrev(tz,projDate);const gmtOff=getGmtOffset(tz,projDate);let tzLabel;if(showAbbrev&&showGmt)tzLabel=abbrev+" ("+gmtOff+")";else if(showGmt)tzLabel=gmtOff;else tzLabel=abbrev;const homeDayStr=now.toLocaleDateString("en-CA",{timeZone:home.tz});const targetDayStr=projDate.toLocaleDateString("en-CA",{timeZone:tz});let daySuffix="";if(homeDayStr!==targetDayStr)daySuffix=targetDayStr>homeDayStr?" (+1 day)":" (-1 day)";const flag=copyFlags?(CATALOG.find(x=>x.t===tz)?.f||"\ud83c\udf10")+" ":"";return flag+time+" "+tzLabel+daySuffix}
 function buildTimeString(){const now=new Date();return copySel.map(c=>fmtProjCopy(c.tz,pTime,now)).filter(Boolean).join(" / ")}
 
 function moveCity(i,dir){const j=i+dir;if(j<0||j>=cities.length)return;[cities[i],cities[j]]=[cities[j],cities[i]];render()}
@@ -421,6 +436,7 @@ if(projNow)projNow.textContent=fmtHMS(now,home.tz);
 }
 
 function render(){
+if(drag)return; // never re-render during an active drag — would destroy the dragged element
 const now=new Date();const app=document.getElementById("app");
 const focusId=document.activeElement?.id;const focusVal=document.activeElement?.value;const focusSel=document.activeElement?.selectionStart;
 const homeW=weather[home.name];
@@ -444,16 +460,25 @@ const fromFlag=fromIsHome?home.flag:(primaryCity?primaryCity.f:null);
 // helper to project pTime from fromTz to a given target tz
 function projectTo(targetTz){
 if(!fromTz||!targetTz||!pTime)return null;
-const srcNow=new Date(now.toLocaleString("en-US",{timeZone:fromTz}));
-const[h,m]=pTime.split(":").map(Number);srcNow.setHours(h,m,0,0);
-const srcOff=getOff(fromTz,now),utcMs=srcNow.getTime()-srcOff*60000,destOff=getOff(targetTz,now);
-const destT=new Date(utcMs+destOff*60000);
-const timeStr=destT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true}).replace(/\s/g,"").toLowerCase();
+// Parse desired time
+const[h,m]=pTime.split(":").map(Number);
+// Find today's date in fromTz (so projecting "11am" applies to today's date in that zone)
+const dayStr=now.toLocaleDateString("en-CA",{timeZone:fromTz}); // YYYY-MM-DD in fromTz
+// Build a UTC instant that represents the desired wall-clock time in fromTz
+// Strategy: take the dayStr, append the time, compute the offset, derive UTC
+const fromOff=getOff(fromTz,now); // minutes east of UTC
+const[Y,Mo,D]=dayStr.split("-").map(Number);
+// Construct UTC ms for "Y-Mo-D hh:mm" interpreted as UTC, then subtract fromOff to get true UTC
+const wallAsUtcMs=Date.UTC(Y,Mo-1,D,h,m,0);
+const trueUtcMs=wallAsUtcMs-fromOff*60000;
+const destT=new Date(trueUtcMs);
+const timeStr=destT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:targetTz}).replace(/\s/g,"").toLowerCase();
 const abbr=getTzAbbrev(targetTz,destT);
-const srcDate=srcNow.toLocaleDateString("en-AU",{day:"numeric",month:"short"});
-const destDate=destT.toLocaleDateString("en-AU",{day:"numeric",month:"short"});
-let dc="same";if(srcDate!==destDate){const a=new Date(srcNow);a.setHours(0,0,0,0);const b=new Date(destT);b.setHours(0,0,0,0);dc=b<a?"prev":"next"}
-return{time:timeStr,abbr,dc,date:destT}}
+const srcDayStr=dayStr;
+const destDayStr=destT.toLocaleDateString("en-CA",{timeZone:targetTz});
+let dc="same";
+if(srcDayStr!==destDayStr)dc=destDayStr<srcDayStr?"prev":"next";
+return{time:timeStr,abbr,dc,date:destT,targetTz}}
 // compute primary projection
 const primaryTz=fromIsHome?(primaryCity?primaryCity.t:null):home.tz;
 const primaryFlag=fromIsHome?(primaryCity?primaryCity.f:null):home.flag;
@@ -468,8 +493,15 @@ h+=`<div class="proj-cards">`;
 // FROM card
 h+=`<div class="pcard pcard-now" style="position:relative">`;
 h+=`<div class="pcard-lbl pcard-lbl-muted">from <button class="city-chip" onclick="event.stopPropagation();togglePcardPicker('from')"><span class="cc-flag">${fromFlag||"\ud83c\udf10"}</span>${fromName}<span class="cc-caret">\u25be</span></button></div>`;
-h+=`<input type="text" class="pcard-inp" id="pt-input" value="${displayTime(pTime)}" placeholder="e.g. 9am" onfocus="interacting=true;this.select()" onblur="interacting=false;handleTimeInput(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();handleTimeInput(this.value)}else if(event.key==='ArrowUp'){event.preventDefault();nudgeTime(30)}else if(event.key==='ArrowDown'){event.preventDefault();nudgeTime(-30)}">`;
-h+=`<div class="pcard-tz" style="font-size:11px;color:var(--mu);margin-top:2px">${fromAbbr}</div>`;
+// Stepper time picker
+{const[ph,pm]=pTime.split(":").map(Number);const ap=ph>=12?"pm":"am";const h12=ph===0?12:ph>12?ph-12:ph;
+h+=`<div class="time-stepper">`;
+h+=`<div class="ts-seg" data-seg="hour"><button class="ts-up" onclick="stepTime('hour',1)" aria-label="Hour up">\u25b4</button><div class="ts-val" onclick="stepTime('hour',1)" ontouchstart="stepHoldStart(event,'hour',1)" onmousedown="stepHoldStart(event,'hour',1)">${h12}</div><button class="ts-dn" onclick="stepTime('hour',-1)" aria-label="Hour down">\u25be</button></div>`;
+h+=`<div class="ts-colon">:</div>`;
+h+=`<div class="ts-seg" data-seg="min"><button class="ts-up" onclick="stepTime('min',5)" aria-label="Min up">\u25b4</button><div class="ts-val" onclick="stepTime('min',5)" ontouchstart="stepHoldStart(event,'min',5)" onmousedown="stepHoldStart(event,'min',5)">${String(pm).padStart(2,"0")}</div><button class="ts-dn" onclick="stepTime('min',-5)" aria-label="Min down">\u25be</button></div>`;
+h+=`<div class="ts-seg ts-seg-ap" data-seg="ap"><button class="ts-ap-btn${ap==="am"?" on":""}" onclick="setAmPm('am')">AM</button><button class="ts-ap-btn${ap==="pm"?" on":""}" onclick="setAmPm('pm')">PM</button></div>`;
+h+=`</div>`}
+h+=`<div class="pcard-tz" style="font-size:11px;color:var(--mu);margin-top:6px">${fromAbbr}</div>`;
 h+=`<div class="pcard-nudge"><button class="nudge-btn" onclick="nudgeTime(-30)">&minus; 30m</button><button class="nudge-btn" onclick="nudgeTime(30)">+ 30m</button></div>`;
 if(projPickerOpen==="from")h+=buildPcardPicker("from");
 h+=`</div>`;
@@ -564,7 +596,7 @@ if(copyOnTop){h+=composerHTML+searchHTML+tilesHTML}
 else{h+=searchHTML+tilesHTML+composerHTML}
 
 h+=`<div class="wstrip"><span>Weather ${weatherTS?"updated "+weatherTS:"loading..."}</span><button class="rbtn" onclick="fetchAllWeather()">Refresh</button></div>`;
-h+=`<div class="footer">All times update live &middot; Offsets from ${home.name} &middot; v2.5.1</div>`;
+h+=`<div class="footer">All times update live &middot; Offsets from ${home.name} &middot; v2.6.1</div>`;
 if(editMode)h+=`<button class="done-float" onclick="toggleEdit()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Done</button>`;
 
 // ---- modal (city picker) ----
@@ -580,7 +612,68 @@ function toggleTheme(){dark=!dark;document.body.classList.toggle("light",!dark);
 function toggleEdit(){editMode=!editMode;document.body.classList.toggle("edit",editMode);render()}
 function setPT(v){pTime=v;render()}
 function handleTimeInput(v){const parsed=parseTime(v);if(parsed){try{document.activeElement.blur()}catch{}pTime=parsed;render()}else{const el=document.getElementById("pt-input");if(el)el.value=displayTime(pTime)}}
+// Live update: parse on every keystroke if valid, update pTime + projection silently (no input value reset)
+function liveTimeInput(v){const parsed=parseTime(v);if(parsed&&parsed!==pTime){pTime=parsed;updateProjLive()}}
+// Update only the projection display elements, not the whole app
+function updateProjLive(){
+const now=new Date();
+// recompute primary projection
+const primary=projCities.length?(cities.find(c=>c.n===projCities[0])||CATALOG.find(c=>c.n===projCities[0])):null;
+if(!primary)return;
+const fromIsHome=projDir==="to";
+const fromTz=fromIsHome?home.tz:primary.t;
+const targetTz=fromIsHome?primary.t:home.tz;
+if(!fromTz||!targetTz||!pTime)return;
+function calc(tz){const[h,m]=pTime.split(":").map(Number);const dayStr=now.toLocaleDateString("en-CA",{timeZone:fromTz});const fromOff=getOff(fromTz,now);const[Y,Mo,D]=dayStr.split("-").map(Number);const destT=new Date(Date.UTC(Y,Mo-1,D,h,m,0)-fromOff*60000);return{date:destT,time:destT.toLocaleTimeString("en-AU",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:tz}).replace(/\s/g,"").toLowerCase(),abbr:getTzAbbrev(tz,destT)}}
+const primaryC=calc(targetTz);
+const primTimeEl=document.querySelector(".pcard-to .pcard-time");
+const primTzEl=document.querySelector(".pcard-to > .pcard-tz");
+if(primTimeEl)primTimeEl.innerHTML=primaryC.time.replace(/(am|pm)/,'<span class="tile-ampm">$1</span>');
+if(primTzEl)primTzEl.textContent=primaryC.abbr;
+// extras
+if(fromIsHome){
+const extraEls=document.querySelectorAll(".dest-chip");
+projCities.slice(1).forEach((n,i)=>{const c=cities.find(x=>x.n===n)||CATALOG.find(x=>x.n===n);if(!c||!extraEls[i])return;const r=calc(c.t);const tEl=extraEls[i].querySelector(".dc-time");if(tEl)tEl.innerHTML=`${r.time} <span class="dc-abbr">${r.abbr}</span>`})
+}
+// mini-copy
+const miniEl=document.querySelector(".mini-copy-text");
+if(miniEl){
+const parts=[fmtMiniCopy(fromTz,pTime,now,fromIsHome?home:primary)];
+parts.push(fmtMiniCopy(targetTz,null,now,fromIsHome?primary:home,primaryC.date));
+if(fromIsHome){projCities.slice(1).forEach(n=>{const c=cities.find(x=>x.n===n)||CATALOG.find(x=>x.n===n);if(c)parts.push(fmtMiniCopy(c.t,null,now,c,calc(c.t).date))})}
+miniEl.textContent=parts.join(" / ")
+}
+// dashboard tiles
+document.querySelectorAll(".tile").forEach(tile=>{
+const idx=parseInt(tile.dataset.idx);if(isNaN(idx))return;
+const city=cities[idx];if(!city)return;
+const r=calc(city.t);
+const projTime=tile.querySelector(".tile-proj-time");
+if(projTime){const ampm=r.time.match(/(am|pm)/);const num=r.time.replace(/(am|pm)/,'');projTime.innerHTML=`${num}${ampm?'<span class="tile-ampm">'+ampm[0]+'</span>':''} <span class="tile-proj-tz">${r.abbr}</span>`}
+})}
 function nudgeTime(minutes){const[h,m]=pTime.split(":").map(Number);let total=h*60+m+minutes;if(total<0)total+=1440;if(total>=1440)total-=1440;const nh=Math.floor(total/60),nm=total%60;setPT(`${String(nh).padStart(2,"0")}:${String(nm).padStart(2,"0")}`)}
+function stepTime(seg,delta){
+const[h,m]=pTime.split(":").map(Number);
+let nh=h,nm=m;
+if(seg==="hour"){nh=(h+delta+24)%24}
+else if(seg==="min"){let total=h*60+m+delta;if(total<0)total+=1440;if(total>=1440)total-=1440;nh=Math.floor(total/60);nm=total%60}
+setPT(`${String(nh).padStart(2,"0")}:${String(nm).padStart(2,"0")}`);
+if(navigator.vibrate)try{navigator.vibrate(8)}catch{}}
+function setAmPm(ap){
+const[h,m]=pTime.split(":").map(Number);const isPm=h>=12;
+if((ap==="am"&&!isPm)||(ap==="pm"&&isPm))return;
+const nh=isPm?h-12:h+12;
+setPT(`${String(nh).padStart(2,"0")}:${String(m).padStart(2,"0")}`)}
+let stepHoldTimer=null,stepHoldInterval=null;
+function stepHoldStart(e,seg,delta){
+e.preventDefault&&e.preventDefault();
+stepHoldTimer=setTimeout(()=>{
+stepHoldInterval=setInterval(()=>stepTime(seg,delta),120)
+},400)}
+function stepHoldEnd(){if(stepHoldTimer){clearTimeout(stepHoldTimer);stepHoldTimer=null}if(stepHoldInterval){clearInterval(stepHoldInterval);stepHoldInterval=null}}
+document.addEventListener("touchend",stepHoldEnd);
+document.addEventListener("touchcancel",stepHoldEnd);
+document.addEventListener("mouseup",stepHoldEnd);
 function resetNow(){setPT(getHHMM(home.tz))}
 function resetProjector(){pTime=getHHMM(home.tz);projDir="to";projCities=cities.length>0?[cities[0].n]:[];render()}
 function flipProjDir(){projDir=projDir==="to"?"from":"to";render()}
@@ -638,11 +731,11 @@ document.querySelectorAll("#pcard-picker-list > div:not(.pcard-picker-item)").fo
 const visible=scored.filter(x=>x.score<Infinity).sort((a,b)=>a.score-b.score);
 visible.forEach(({item})=>list.appendChild(item))}
 
-function fmtMiniCopy(tz,pT,now,cityObj,projectedDateOverride){
+function fmtMiniCopy(tz,pT,now,cityObj,projectedInstant){
 let timeStr;
-if(projectedDateOverride){
-// destT has destination offset baked into its UTC ms — format as UTC to read correctly
-timeStr=projectedDateOverride.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:"UTC"}).replace(/\s/g,"").toLowerCase()
+if(projectedInstant){
+// projectedInstant is a true UTC instant — format with timeZone:tz to get correct wall clock
+timeStr=projectedInstant.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:tz}).replace(/\s/g,"").toLowerCase()
 }else if(pT){
 const[h,m]=pT.split(":").map(Number);
 const ap=h>=12?"pm":"am";const h12=h===0?12:h>12?h-12:h;
@@ -650,7 +743,7 @@ timeStr=m===0?`${h12}${ap}`:`${h12}:${String(m).padStart(2,"0")}${ap}`
 }else{
 timeStr=now.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true,timeZone:tz}).replace(/\s/g,"").toLowerCase()
 }
-const abbr=getTzAbbrev(tz,projectedDateOverride||now);
+const abbr=getTzAbbrev(tz,projectedInstant||now);
 const flag=miniFlags?(cityObj?.f||cityObj?.flag||"\ud83c\udf10")+" ":"";
 return flag+timeStr+" "+abbr}
 
@@ -662,7 +755,12 @@ const fromIsHome=projDir==="to";
 const fromTz=fromIsHome?home.tz:primary.t;
 const fromCityObj=fromIsHome?home:primary;
 // helper
-function proj(tz){const srcNow=new Date(now.toLocaleString("en-US",{timeZone:fromTz}));const[h,m]=pTime.split(":").map(Number);srcNow.setHours(h,m,0,0);const srcOff=getOff(fromTz,now),utcMs=srcNow.getTime()-srcOff*60000,destOff=getOff(tz,now);return new Date(utcMs+destOff*60000)}
+function proj(tz){
+const[h,m]=pTime.split(":").map(Number);
+const dayStr=now.toLocaleDateString("en-CA",{timeZone:fromTz});
+const fromOff=getOff(fromTz,now);
+const[Y,Mo,D]=dayStr.split("-").map(Number);
+return new Date(Date.UTC(Y,Mo-1,D,h,m,0)-fromOff*60000)}
 const parts=[fmtMiniCopy(fromTz,pTime,now,fromCityObj)];
 // primary target
 const primaryTz=fromIsHome?primary.t:home.tz;
