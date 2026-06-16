@@ -1,0 +1,20 @@
+{
+  "name": "World Clock — Meeting Time Planner",
+  "short_name": "World Clock",
+  "description": "Plan meetings across time zones. Pick a time in your city, see it everywhere, and copy a clean schedule to share.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c0c0a",
+  "theme_color": "#0c0c0a",
+  "categories": ["productivity", "utilities", "business"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%230c0c0a'/%3E%3Ccircle cx='256' cy='256' r='150' fill='none' stroke='%235DCAA5' stroke-width='32'/%3E%3Cpath d='M256 168v92l54 34' fill='none' stroke='%235DCAA5' stroke-width='32' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
