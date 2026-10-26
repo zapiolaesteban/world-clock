@@ -9,13 +9,14 @@ Three states, smallest last:
 
 - **Panel.** The full compact page, 340 by 560 by default, resizable.
 - **Strip.** One row, 40 points tall: your home time and the top two cities, flag and time, with
-  a chevron at the right end. It tucks against the nearer side of whichever screen it is on.
-- **One time.** A single flag and time, your home city to start. Scroll over it (trackpad or
-  mouse wheel) to step through your other cities, one per swipe or notch.
+  a chevron at each end. It tucks against the nearer side of whichever screen it is on.
+- **One time.** A single flag and time, your home city to start, with one chevron. Scroll over
+  it (trackpad or mouse wheel) to step through your other cities, one per swipe or notch.
 
 Moving between them: the yellow button (or a double-click on the title bar) collapses the panel to
-the strip. On the strip, the chevron opens the panel and a click on the times goes to the one
-time. On the one time, a click goes back to the strip. Drag either to move it. The red button
+the strip. On the strip, the down chevron at the right opens the panel; the inward chevron at the
+left, or a click on the times, goes to the one time. On the one time, its chevron, or a click,
+goes back to the strip. Drag either to move it. The red button
 hides the panel; the clock in the menu bar brings it back, and its right-click menu can jump to
 any of the three states. Quit is in that menu too.
 

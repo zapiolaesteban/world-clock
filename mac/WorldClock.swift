@@ -8,12 +8,14 @@
 //
 // Three states, smallest last:
 //   panel   the full compact page: cities, projector, typed time
-//   strip   one row, 40 points tall: home plus the top two cities as flag and time, and a chevron
-//   single  one flag and time; scroll over it to step through the other cities
+//   strip   one row, 40 points tall: a chevron in, home plus the top two cities as flag and time,
+//           a chevron down
+//   single  a chevron out, one flag and time; scroll over it to step through the other cities
 // The yellow button or a title-bar double-click collapses the panel to the strip. On the strip,
-// the chevron opens the panel and the times go to the single time; on the single time a click goes
-// back to the strip. Strip and single tuck against the nearer side of their screen. They are
-// drawn by a script this app injects into the page, so index.html stays exactly the web version.
+// the down chevron opens the panel and the inward chevron (or the times) goes to the single time;
+// on the single time the outward chevron (or a click) goes back to the strip. Strip and single
+// tuck against the nearer side of their screen. They are drawn by a script this app injects into
+// the page, so index.html stays exactly the web version.
 
 import Cocoa
 import WebKit
@@ -28,7 +30,7 @@ let liveURL = "https://www.estebangz.com/world-clock/?mini=1"
 //   defaults delete com.estebangz.worldclock url      # back to the live site
 let pageURL = URL(string: UserDefaults.standard.string(forKey: "url") ?? liveURL)!
 let panelSize = NSSize(width: 340, height: 560)
-let sizes: [Mode: NSSize] = [.strip: NSSize(width: 320, height: 40), .single: NSSize(width: 124, height: 40)]
+let sizes: [Mode: NSSize] = [.strip: NSSize(width: 344, height: 40), .single: NSSize(width: 148, height: 40)]
 
 // Runs inside the page once it has loaded. Draws the strip and the single time from the page's own
 // data (home, cities and fmtHMS are globals in index.html), redrawing every second.
@@ -44,13 +46,16 @@ let stripScript = """
       background:var(--bg);white-space:nowrap;-webkit-user-select:none}
     #wc-strip span{display:flex;align-items:center;gap:6px}
     #wc-strip b{font-weight:400;font-size:16px;line-height:1}
-    #wc-strip .wc-go{color:var(--mu);margin:0 -2px 0 2px}`;
+    #wc-strip .wc-go{color:var(--mu);flex:none}`;
   document.head.appendChild(css);
   const strip = document.createElement('div');
   strip.id = 'wc-strip';
   document.body.appendChild(strip);
-  const chevron = '<svg class="wc-go" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
-    + 'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  // Three chevrons, one drawing: inward (collapse the strip to one time), outward (one time back
+  // to the strip), down (open the panel). The native overlay turns the clicks into state changes.
+  const chevron = pts => '<svg class="wc-go" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + `stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="${pts}"/></svg>`;
+  const inward = chevron('9 6 15 12 9 18'), outward = chevron('15 6 9 12 15 18'), down = chevron('6 9 12 15 18 9');
   let mode = 0, index = 0;
   const draw = () => {
     document.body.classList.toggle('wc-compact', mode > 0);
@@ -58,8 +63,9 @@ let stripScript = """
     const all = [{f: home.flag, t: home.tz}].concat(cities.map(c => ({f: c.f, t: c.t})));
     const shown = mode === 1 ? all.slice(0, 3) : [all[((index % all.length) + all.length) % all.length]];
     const now = new Date();
-    strip.innerHTML = shown.map(i => `<span><b>${i.f}</b>${fmtHMS(now, i.t).slice(0, 5)}</span>`).join('')
-      + (mode === 1 ? chevron : '');
+    strip.innerHTML = (mode === 1 ? inward : outward)
+      + shown.map(i => `<span><b>${i.f}</b>${fmtHMS(now, i.t).slice(0, 5)}</span>`).join('')
+      + (mode === 1 ? down : '');
   };
   setInterval(draw, 1000);
   window.wcState = (m, i) => { mode = m; index = i; draw(); };
