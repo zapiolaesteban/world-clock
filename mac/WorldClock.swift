@@ -1,20 +1,25 @@
 // World Clock for the Mac: a small floating panel that shows the web app's compact view.
 // One file, no dependencies, no Xcode project. Build it with `bash mac/build.sh`.
 //
-// What it does: a panel that floats above every other window on every Space, holding a web view
-// that loads https://www.estebangz.com/world-clock/?mini=1. A clock in the menu bar shows and hides
-// it (left click) or opens its menu (right click). It remembers its position and size, can launch
-// at login, and keeps its own browser storage, so the city list survives a restart and nothing is
-// shared with Safari.
+// A panel floats above every other window on every Space, holding a web view that loads
+// https://www.estebangz.com/world-clock/?mini=1. A clock in the menu bar shows and hides it (left
+// click) or opens its menu (right click). Frame and state survive relaunch, it can launch at login,
+// and its browser storage is its own, so the city list persists and nothing is shared with Safari.
 //
-// Two states. Expanded is the full compact page: cities, projector, typed time. The yellow button
-// collapses it to a strip, 40 points tall, with the home time and the top two cities as flag and
-// time. Click the strip to expand again; drag it to move it. The strip is drawn by a script this
-// app injects into the page, so index.html stays exactly the web version.
+// Three states, smallest last:
+//   panel   the full compact page: cities, projector, typed time
+//   strip   one row, 40 points tall: home plus the top two cities as flag and time, and a chevron
+//   single  one flag and time; scroll over it to step through the other cities
+// The yellow button or a title-bar double-click collapses the panel to the strip. On the strip,
+// the chevron opens the panel and the times go to the single time; on the single time a click goes
+// back to the strip. Strip and single tuck against the nearer side of their screen. They are
+// drawn by a script this app injects into the page, so index.html stays exactly the web version.
 
 import Cocoa
 import WebKit
 import ServiceManagement
+
+enum Mode: Int { case panel, strip, single }
 
 let frameName = "WorldClockPanel"
 let liveURL = "https://www.estebangz.com/world-clock/?mini=1"
@@ -22,11 +27,11 @@ let liveURL = "https://www.estebangz.com/world-clock/?mini=1"
 //   defaults write com.estebangz.worldclock url "http://localhost:8766/?mini=1"
 //   defaults delete com.estebangz.worldclock url      # back to the live site
 let pageURL = URL(string: UserDefaults.standard.string(forKey: "url") ?? liveURL)!
-let expandedSize = NSSize(width: 340, height: 560)
-let stripSize = NSSize(width: 320, height: 40)
+let panelSize = NSSize(width: 340, height: 560)
+let sizes: [Mode: NSSize] = [.strip: NSSize(width: 320, height: 40), .single: NSSize(width: 124, height: 40)]
 
-// Runs inside the page once it has loaded. Builds the strip from the page's own data (home, cities,
-// fmtHMS are globals in index.html) and redraws it every second while the compact class is on.
+// Runs inside the page once it has loaded. Draws the strip and the single time from the page's own
+// data (home, cities and fmtHMS are globals in index.html), redrawing every second.
 let stripScript = """
 (() => {
   const css = document.createElement('style');
@@ -38,19 +43,26 @@ let stripScript = """
       font-family:'DM Mono',ui-monospace,monospace;font-size:14px;font-weight:500;letter-spacing:.01em;color:var(--tx);
       background:var(--bg);white-space:nowrap;-webkit-user-select:none}
     #wc-strip span{display:flex;align-items:center;gap:6px}
-    #wc-strip b{font-weight:400;font-size:16px;line-height:1}`;
+    #wc-strip b{font-weight:400;font-size:16px;line-height:1}
+    #wc-strip .wc-go{color:var(--mu);margin:0 -2px 0 2px}`;
   document.head.appendChild(css);
   const strip = document.createElement('div');
   strip.id = 'wc-strip';
   document.body.appendChild(strip);
+  const chevron = '<svg class="wc-go" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+    + 'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  let mode = 0, index = 0;
   const draw = () => {
-    if (!document.body.classList.contains('wc-compact')) return;
+    document.body.classList.toggle('wc-compact', mode > 0);
+    if (!mode) return;
+    const all = [{f: home.flag, t: home.tz}].concat(cities.map(c => ({f: c.f, t: c.t})));
+    const shown = mode === 1 ? all.slice(0, 3) : [all[((index % all.length) + all.length) % all.length]];
     const now = new Date();
-    const items = [{f: home.flag, t: home.tz}].concat(cities.slice(0, 2).map(c => ({f: c.f, t: c.t})));
-    strip.innerHTML = items.map(i => `<span><b>${i.f}</b>${fmtHMS(now, i.t).slice(0, 5)}</span>`).join('');
+    strip.innerHTML = shown.map(i => `<span><b>${i.f}</b>${fmtHMS(now, i.t).slice(0, 5)}</span>`).join('')
+      + (mode === 1 ? chevron : '');
   };
   setInterval(draw, 1000);
-  window.wcCompact = on => { document.body.classList.toggle('wc-compact', on); draw(); };
+  window.wcState = (m, i) => { mode = m; index = i; draw(); };
 })();
 """
 
@@ -68,27 +80,46 @@ final class ClockPanel: NSPanel {
     override func zoom(_ sender: Any?) { onMinimize?() }
 }
 
-/// Covers the web view while collapsed: a drag moves the panel, a plain click expands it.
+/// Covers the web view while collapsed. Drag moves the panel; a click on the right end (the
+/// chevron) opens the panel, a click elsewhere toggles strip and single; a scroll steps cities.
 final class StripView: NSView {
-    var onClick: (() -> Void)?
-    private var dragged = false
+    var onClick: (() -> Void)?, onChevron: (() -> Void)?, onStep: ((Int) -> Void)?
+    var chevronWidth: CGFloat = 0
+    private var dragged = false, stepped = false, travel: CGFloat = 0
     override func mouseDown(with event: NSEvent) { dragged = false }
     override func mouseDragged(with event: NSEvent) {
         if !dragged { dragged = true; window?.performDrag(with: event) }
     }
-    override func mouseUp(with event: NSEvent) { if !dragged { onClick?() } }
-    override func accessibilityPerformPress() -> Bool { onClick?(); return true }   // VoiceOver: one button
+    override func mouseUp(with event: NSEvent) {
+        guard !dragged else { return }
+        if convert(event.locationInWindow, from: nil).x > bounds.width - chevronWidth { onChevron?() } else { onClick?() }
+    }
+    /// One step per trackpad gesture (after a little travel, momentum ignored) or per wheel notch.
+    override func scrollWheel(with event: NSEvent) {
+        if event.phase == .began { travel = 0; stepped = false }
+        if event.momentumPhase != [] { return }
+        travel += event.scrollingDeltaY
+        let wheelNotch = event.phase == [] && event.momentumPhase == []
+        if wheelNotch || (!stepped && abs(travel) > 24) {
+            onStep?(travel < 0 ? 1 : -1)
+            stepped = true
+            travel = 0
+        }
+    }
+    override func resetCursorRects() { addCursorRect(bounds, cursor: .pointingHand) }
+    override func accessibilityPerformPress() -> Bool { onClick?(); return true }
 }
 
 @MainActor
 final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigationDelegate, WKUIDelegate {
-    let panel = ClockPanel(contentRect: NSRect(origin: .zero, size: expandedSize),
+    let panel = ClockPanel(contentRect: NSRect(origin: .zero, size: panelSize),
                            styleMask: [.titled, .closable, .miniaturizable, .resizable, .utilityWindow, .nonactivatingPanel],
                            backing: .buffered, defer: false)
     let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     let strip = StripView()
     var webView: WKWebView!
-    var compact = false
+    var mode = Mode.panel
+    var cityIndex = 0
 
     func applicationDidFinishLaunching(_ note: Notification) {
         panel.title = "World Clock"
@@ -99,10 +130,11 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
         panel.backgroundColor = NSColor(red: 0.047, green: 0.047, blue: 0.039, alpha: 1) // the page's dark paper
         panel.standardWindowButton(.zoomButton)?.isHidden = true
         panel.delegate = self
-        panel.onMinimize = { [unowned self] in setCompact(true) }
+        panel.onMinimize = { [unowned self] in setMode(.strip) }
         if !panel.setFrameUsingName(frameName) { panel.center() }   // restore last frame, else centre
         _ = panel.setFrameAutosaveName(frameName)                   // keep saving it (this re-applies it too)
-        if panel.frame.width > 800 || panel.frame.height > 1200 { panel.setContentSize(expandedSize) }
+        let f = panel.frame   // a saved frame that is absurd for the panel (zoomed, or a strip's) starts over
+        if f.width > 800 || f.height > 1200 || f.height < 380 { panel.setContentSize(panelSize) }
 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()   // this app's own storage, persistent, separate from Safari
@@ -117,10 +149,12 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
 
         strip.frame = panel.contentView!.bounds
         strip.autoresizingMask = [.width, .height]
-        strip.onClick = { [unowned self] in setCompact(false) }
+        strip.onClick = { [unowned self] in setMode(mode == .strip ? .single : .strip) }
+        strip.onChevron = { [unowned self] in setMode(.panel) }
+        strip.onStep = { [unowned self] d in cityIndex += d; syncPage() }
         strip.setAccessibilityElement(true)
         strip.setAccessibilityRole(.button)
-        strip.setAccessibilityLabel("Expand World Clock")
+        strip.setAccessibilityLabel("World Clock strip")
         panel.contentView!.addSubview(strip)
 
         let button = statusItem.button!
@@ -129,43 +163,48 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
         button.action = #selector(statusClicked)
         _ = button.sendAction(on: [.leftMouseUp, .rightMouseUp])
 
-        // Quit while collapsed, come back collapsed. Expanded keeps the frame restored above.
-        if UserDefaults.standard.bool(forKey: "compact") { setCompact(true, atLaunch: true) }
+        // Quit collapsed, come back collapsed. The panel keeps the frame restored above.
+        if let m = Mode(rawValue: UserDefaults.standard.integer(forKey: "mode")), m != .panel { setMode(m, atLaunch: true) }
         panel.orderFrontRegardless()
     }
 
-    // MARK: Expanded and collapsed
+    // MARK: States
 
-    func setCompact(_ on: Bool, atLaunch: Bool = false) {
+    func syncPage() { webView.evaluateJavaScript("window.wcState && wcState(\(mode.rawValue), \(cityIndex))") }
+
+    func setMode(_ m: Mode, atLaunch: Bool = false) {
         // Read the geometry first; the style changes below can nudge the frame.
         let screen = panel.screen ?? NSScreen.main
         let visible = screen?.visibleFrame ?? panel.frame
         let rightSide = panel.frame.midX > visible.midX   // which side of its screen the panel lives on
         let top = panel.frame.maxY
-        if on, !compact, !atLaunch { UserDefaults.standard.set(NSStringFromRect(panel.frame), forKey: "expandedFrame") }
-        compact = on
-        UserDefaults.standard.set(on, forKey: "compact")
-        panel.titleVisibility = on ? .hidden : .visible
-        panel.titlebarAppearsTransparent = on
-        if on { panel.styleMask.insert(.fullSizeContentView) } else { panel.styleMask.remove(.fullSizeContentView) }
-        for kind: NSWindow.ButtonType in [.closeButton, .miniaturizeButton] { panel.standardWindowButton(kind)?.isHidden = on }
-        panel.minSize = on ? NSSize(width: 240, height: stripSize.height) : NSSize(width: 280, height: 380)
-        panel.maxSize = on ? NSSize(width: 600, height: stripSize.height) : NSSize(width: 4000, height: 4000)
-        strip.isHidden = !on
-        webView.evaluateJavaScript("window.wcCompact && wcCompact(\(on))")
-
-        // The strip tucks against the nearer side of the screen it is on, at the same height. The
-        // panel opens back from that side, so a strip on the right expands leftwards.
-        var size = stripSize
-        if !on {
-            let saved = UserDefaults.standard.string(forKey: "expandedFrame").map(NSRectFromString)?.size ?? expandedSize
+        if mode == .panel, m != .panel, !atLaunch { UserDefaults.standard.set(NSStringFromRect(panel.frame), forKey: "expandedFrame") }
+        if m == .single, mode != .single { cityIndex = 0 }   // the single time starts on home
+        mode = m
+        UserDefaults.standard.set(m.rawValue, forKey: "mode")
+        let full = m == .panel
+        panel.titleVisibility = full ? .visible : .hidden
+        panel.titlebarAppearsTransparent = !full
+        if full { panel.styleMask.remove(.fullSizeContentView) } else { panel.styleMask.insert(.fullSizeContentView) }
+        for kind: NSWindow.ButtonType in [.closeButton, .miniaturizeButton] { panel.standardWindowButton(kind)?.isHidden = !full }
+        strip.isHidden = full
+        strip.chevronWidth = m == .strip ? 36 : 0
+        var size = sizes[m] ?? panelSize
+        if full {
+            let saved = UserDefaults.standard.string(forKey: "expandedFrame").map(NSRectFromString)?.size ?? panelSize
             size = NSSize(width: min(max(saved.width, 280), 800), height: min(max(saved.height, 380), 1200))
         }
+        panel.minSize = full ? NSSize(width: 280, height: 380) : size
+        panel.maxSize = full ? NSSize(width: 4000, height: 4000) : NSSize(width: 600, height: size.height)
+        syncPage()
+
+        // Strip and single tuck against the nearer side of the screen, at the same height. The
+        // panel opens back from that side, so a strip on the right expands leftwards.
         var frame = NSRect(x: 0, y: top - size.height, width: size.width, height: size.height)
-        if on {
-            frame.origin.x = rightSide ? visible.maxX - size.width : visible.minX
-        } else {
+        if full {
             frame.origin.x = rightSide ? panel.frame.maxX - size.width : panel.frame.minX
+        } else {
+            frame.origin.x = rightSide ? visible.maxX - size.width : visible.minX
         }
         if let screen { frame = panel.constrainFrameRect(frame, to: screen) }
         panel.setFrame(frame, display: true, animate: !atLaunch)
@@ -182,15 +221,20 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
         if panel.isVisible { panel.orderOut(nil) } else { panel.makeKeyAndOrderFront(nil) }
     }
 
-    @objc func toggleCompact() { setCompact(!compact); panel.makeKeyAndOrderFront(nil) }
+    @objc func pickMode(_ sender: NSMenuItem) { setMode(Mode(rawValue: sender.tag)!); panel.makeKeyAndOrderFront(nil) }
 
     func showMenu() {
         let menu = NSMenu()
         menu.addItem(withTitle: panel.isVisible ? "Hide World Clock" : "Show World Clock", action: #selector(toggle), keyEquivalent: "")
-        menu.addItem(withTitle: compact ? "Expand" : "Collapse to Strip", action: #selector(toggleCompact), keyEquivalent: "")
+        menu.addItem(.separator())
+        for (title, m) in [("Full Panel", Mode.panel), ("Strip", .strip), ("One Time", .single)] {
+            let item = menu.addItem(withTitle: title, action: #selector(pickMode), keyEquivalent: "")
+            item.tag = m.rawValue
+            item.state = m == mode ? .on : .off
+        }
+        menu.addItem(.separator())
         menu.addItem(withTitle: "Reload", action: #selector(reload), keyEquivalent: "")
         menu.addItem(withTitle: "Open Full Page in Browser", action: #selector(openInBrowser), keyEquivalent: "")
-        menu.addItem(.separator())
         let login = menu.addItem(withTitle: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
         login.state = SMAppService.mainApp.status == .enabled ? .on : .off
         menu.addItem(.separator())
@@ -218,7 +262,7 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
         }
     }
 
-    // MARK: Window
+    // MARK: Window and web view
 
     /// The close button only hides the panel; the menu bar clock brings it back. Quit is in the menu.
     func windowShouldClose(_ sender: NSWindow) -> Bool {
@@ -226,12 +270,8 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
         return false
     }
 
-    // MARK: Web view
-
     /// After every load (first launch, Reload), put the page in whichever state the panel is in.
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        webView.evaluateJavaScript("window.wcCompact && wcCompact(\(compact))")
-    }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { syncPage() }
 
     /// Clicked links (the arrow to the full page, anything external) open in the default browser;
     /// the panel itself only ever shows the World Clock.
