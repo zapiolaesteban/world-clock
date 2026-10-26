@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-3.9 -3.9 39.8 39.8" width="1024" height="1024">
+  <!-- The World Clock mark: the same drawing as the favicon in index.html, with the margin a
+       macOS app icon expects (the tile fills about 80% of the canvas). -->
+  <rect width="32" height="32" rx="7" fill="#0c0c0a"/>
+  <circle cx="16" cy="16" r="9" fill="none" stroke="#5DCAA5" stroke-width="2"/>
+  <path d="M16 11v5l3.2 2" fill="none" stroke="#5DCAA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
