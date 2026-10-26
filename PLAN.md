@@ -40,7 +40,18 @@ Done when: typed time round-trips on desktop Chrome and Safari and on iPhone Saf
 window opens from the full page and shows the same cities; no console errors; the full page at
 390 and 1440 wide looks the same as before this sprint apart from the new header button.
 
-## Sprint 2: accessibility and the 2026 experience pass (own session)
+## Sprint 2, done in branch `sprint-2-a11y-experience`: accessibility and the experience pass
+
+Measured first (Lighthouse accessibility 93 on every run, 65 to 76 axe contrast nodes, no Escape,
+no focus trap, no keyboard reorder), then fixed by family. After: Lighthouse 100 on dark and light,
+desktop and mobile; axe zero violations; every control 24 px or more; the text tokens retoned once
+(`--mu`, `--fa`, light `--ac`, new `--onAc`) rather than per use; picker, modal and dropdown are
+dialogs with a focus trap, Escape and focus return; move up and down buttons in edit mode; a
+first-run card; "Use my location" instead of a prompt on load; `sw.js` caches the shell for offline;
+zones missing from `TZ_AB` now show their GMT offset instead of "Buenos_Aires". The share string is
+byte-identical for every zone in `TZ_AB`. Numbers and screenshots are in the PR.
+
+The original brief, kept for the record:
 
 Measure first, then fix the families, not the instances.
 
