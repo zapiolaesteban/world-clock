@@ -5,15 +5,19 @@ web app's compact view (`?mini=1`) inside a native window, so it is always the s
 site: the city list, the time projector and the typed time all work exactly as they do in the
 browser, and the city list is kept inside the app between launches.
 
-Two states:
+Three states, smallest last:
 
-- **Expanded.** The full compact page, 340 by 560 by default, resizable.
-- **Strip.** One row, 40 points tall: your home time and the top two cities, flag and time. It
-  tucks against the nearer side of whichever screen it is on.
+- **Panel.** The full compact page, 340 by 560 by default, resizable.
+- **Strip.** One row, 40 points tall: your home time and the top two cities, flag and time, with
+  a chevron at the right end. It tucks against the nearer side of whichever screen it is on.
+- **One time.** A single flag and time, your home city to start. Scroll over it (trackpad or
+  mouse wheel) to step through your other cities, one per swipe or notch.
 
-The yellow button (or a double-click on the title bar) collapses to the strip. Click the strip to
-expand again; drag it to move it. The red button hides the panel; the clock in the menu bar brings
-it back. Quit is in the menu bar clock's right-click menu.
+Moving between them: the yellow button (or a double-click on the title bar) collapses the panel to
+the strip. On the strip, the chevron opens the panel and a click on the times goes to the one
+time. On the one time, a click goes back to the strip. Drag either to move it. The red button
+hides the panel; the clock in the menu bar brings it back, and its right-click menu can jump to
+any of the three states. Quit is in that menu too.
 
 ## Build
 
