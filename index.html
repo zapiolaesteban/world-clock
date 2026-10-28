@@ -772,7 +772,7 @@ saveState(); // every change ends here, so the other window (floating or full) n
 
 if(modalOpen){setTimeout(()=>{const s=document.getElementById("modal-srch");if(s)s.focus();bindAzTouch()},50)}
 
-if(focusId){const el=document.getElementById(focusId);if(el){el.focus();if(focusId==="srch"){el.value=searchVal;try{el.setSelectionRange(searchVal.length,searchVal.length)}catch{}}else if(focusVal!==undefined){el.value=focusVal;if(focusSel!==undefined&&el.setSelectionRange)try{el.setSelectionRange(focusSel,focusSel)}catch{}}}}}
+if(focusId){const el=document.getElementById(focusId);if(el){el.focus({preventScroll:true});if(focusId==="srch"){el.value=searchVal;try{el.setSelectionRange(searchVal.length,searchVal.length)}catch{}}else if(focusVal!==undefined){el.value=focusVal;if(focusSel!==undefined&&el.setSelectionRange)try{el.setSelectionRange(focusSel,focusSel)}catch{}}}}}
 
 function applyTheme(){document.body.classList.toggle("light",!dark);try{document.getElementById("tc").content=dark?"#0c0c0a":"#ffffff"}catch(e){}}
 function toggleTheme(){dark=!dark;applyTheme();saveState();render();announceMsg(dark?"Dark theme":"Light theme")}
