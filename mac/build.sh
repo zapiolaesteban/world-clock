@@ -13,10 +13,22 @@ ARCH="$(uname -m)"                      # arm64 on Apple silicon, x86_64 on Inte
 [ -d "$APP" ] && rm -r "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
-echo "Compiling WorldClock.swift for $ARCH…"
-swiftc -O -target "$ARCH-apple-macos13.0" \
-  -framework Cocoa -framework WebKit -framework ServiceManagement \
-  WorldClock.swift -o "$BIN"
+compile() { # $1 = arch, $2 = output
+  swiftc -O -target "$1-apple-macos13.0" \
+    -framework Cocoa -framework WebKit -framework ServiceManagement \
+    WorldClock.swift -o "$2"
+}
+if [ "${UNIVERSAL:-0}" = "1" ]; then
+  # The downloadable build: one binary that runs on Apple silicon and Intel.
+  echo "Compiling WorldClock.swift for arm64 and x86_64…"
+  compile arm64 "$BIN.arm64"
+  compile x86_64 "$BIN.x86_64"
+  lipo -create "$BIN.arm64" "$BIN.x86_64" -output "$BIN"
+  rm "$BIN.arm64" "$BIN.x86_64"
+else
+  echo "Compiling WorldClock.swift for $ARCH…"
+  compile "$ARCH" "$BIN"
+fi
 
 cp Info.plist "$APP/Contents/Info.plist"
 
