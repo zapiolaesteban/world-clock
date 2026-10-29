@@ -29,7 +29,8 @@ h1{font-size:clamp(26px,5vw,34px);font-weight:500;letter-spacing:-.02em;line-hei
 .meta{font-size:13px;color:var(--mu)}
 h2{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:40px 0 14px}
 ol{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:14px}
-ol li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}
+ol li{counter-increment:s;display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start}
+ol li>div{min-width:0} /* a grid cell will not shrink below its longest line (the code line) unless told to */
 ol li::before{content:counter(s);font-family:'DM Mono',monospace;font-size:13px;color:var(--ac);border:1px solid var(--bd);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin-top:1px}
 ol li b{font-weight:500}
 ol li p{color:var(--mid);text-wrap:pretty}
@@ -63,7 +64,7 @@ dd a,.foot a{color:var(--ac);text-decoration:none}dd a:hover,.foot a:hover{text-
 
 <h2>Three steps</h2>
 <ol>
-  <li><div><b>Unzip and drag <span class="mono">World Clock</span> into Applications.</b><p>Then open it. A small clock appears in your menu bar and the panel opens.</p></div></li>
+  <li><div><b>Unzip and drag <span class="mono">World Clock</span> into&nbsp;Applications.</b><p>Then open it. A small clock appears in your menu bar and the panel opens.</p></div></li>
   <li><div><b>The first open needs one extra click.</b><p>The app is not signed with an Apple developer account, so macOS will say it could not verify it and refuse. Open <b>System Settings</b>, then <b>Privacy &amp; Security</b>, scroll down, and click <b>Open Anyway</b>. That happens once. If you prefer the Terminal:</p><pre>xattr -dr com.apple.quarantine "/Applications/World Clock.app"</pre></div></li>
   <li><div><b>Make it start with your Mac.</b><p>Right-click the clock in the menu bar and turn on <b>Launch at Login</b>. From then on it is just there.</p></div></li>
 </ol>
