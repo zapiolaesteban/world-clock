@@ -37,6 +37,28 @@ bash mac/build.sh
 That compiles `mac/WorldClock.swift` with `swiftc`, builds the icon from `mac/icon.svg` and writes
 `mac/World Clock.app`. No Xcode, no package manager, no network. About ten seconds.
 
+## Download instead
+
+Most people should not build it: the setup page at `https://www.estebangz.com/world-clock/mac/`
+(this folder's `index.html`) links the latest zip from the repo's GitHub Releases. To publish a new
+build there, from the repo root:
+
+```bash
+UNIVERSAL=1 bash mac/build.sh
+```
+
+```bash
+ditto -c -k --keepParent "mac/World Clock.app" World-Clock-mac.zip
+```
+
+```bash
+GH_TOKEN=$(gh auth token -u zapiolaesteban) gh release create v1.x.y World-Clock-mac.zip --repo zapiolaesteban/world-clock --title "World Clock for Mac 1.x" --notes "what changed"
+```
+
+`UNIVERSAL=1` compiles for arm64 and x86_64 and joins them with `lipo`, so one zip runs on Apple
+silicon and Intel. Keep the asset name `World-Clock-mac.zip`: the page links
+`releases/latest/download/World-Clock-mac.zip`, which always resolves to the newest release.
+
 ## Install
 
 Drag `mac/World Clock.app` into `/Applications` and open it. A clock appears in the menu bar and

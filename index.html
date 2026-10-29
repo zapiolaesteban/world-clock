@@ -762,7 +762,7 @@ else{h+=searchHTML+tilesHTML+composerHTML}
 
 h+=`<div class="wstrip"><span>Weather ${geoOptIn?"near you":"for "+home.name}${weatherTS?", updated "+weatherTS:", loading"}</span><span class="wstrip-actions">${(!geoOptIn&&navigator.geolocation)?'<button id="geo-btn" class="rbtn" onclick="useMyLocation()" title="Weather for where you are, not the city centre">Use my location</button>':''}<button id="w-refresh" class="rbtn" onclick="fetchAllWeather()">Refresh</button></span></div>`;
 if(editMode)h+=`<button id="done-btn" class="done-float" onclick="toggleEdit()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Done</button>`;
-h+=`</main><footer class="footer">All times update live &middot; Offsets from ${home.name} &middot; v2.8.0</footer>`;
+h+=`</main><footer class="footer">All times update live &middot; Offsets from ${home.name} &middot; <a href="mac/" style="color:var(--mu)">Get the Mac app</a> &middot; v2.8.1</footer>`;
 
 // ---- modal (city picker) ----
 if(modalOpen){h+=buildModalHTML()}

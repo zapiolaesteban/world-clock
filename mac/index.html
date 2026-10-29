@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>World Clock for the Mac</title>
+<meta name="description" content="The World Clock as a small always-on-top window on your Mac. Download, three steps, done.">
+<meta name="theme-color" content="#0c0c0a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230c0c0a'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%235DCAA5' stroke-width='2'/%3E%3Cpath d='M16 11v5l3.2 2' fill='none' stroke='%235DCAA5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Tokens are the clock's own (index.html), so this page reads as part of the same thing. */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0c0c0a;--sf:#141412;--tx:#e5e3dd;--mid:#b0ada6;--mu:#9b9994;--bd:#2a2a27;--ac:#5DCAA5;--acBg:#0d2b20;--acTx:#9FE1CB;--onAc:#0c0c0a}
+@media(prefers-color-scheme:light){:root{--bg:#fff;--sf:#f5f4f0;--tx:#1a1a18;--mid:#5f5e5a;--mu:#67655f;--bd:#e5e3dd;--ac:#167858;--acBg:#E1F5EE;--acTx:#085041;--onAc:#fff}}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.5;min-height:100dvh}
+.mono{font-family:'DM Mono',monospace}
+.wrap{max-width:640px;margin:0 auto;padding:max(env(safe-area-inset-top,0px),28px) 20px calc(max(env(safe-area-inset-bottom,0px),20px)+28px)}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--mu);text-decoration:none;font-size:13px;margin-bottom:28px}
+.back:hover{color:var(--ac)}
+h1{font-size:clamp(26px,5vw,34px);font-weight:500;letter-spacing:-.02em;line-height:1.15;text-wrap:balance;margin-bottom:10px}
+.lede{font-size:17px;color:var(--mid);text-wrap:pretty;max-width:34em}
+.get{margin:28px 0 8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--ac);color:var(--onAc);text-decoration:none;font-weight:500;font-size:15px;padding:12px 18px;border-radius:10px;min-height:44px}
+.btn:hover{filter:brightness(1.06)}.btn:active{transform:scale(.98)}
+.meta{font-size:13px;color:var(--mu)}
+h2{font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:40px 0 14px}
+ol{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:14px}
+ol li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}
+ol li::before{content:counter(s);font-family:'DM Mono',monospace;font-size:13px;color:var(--ac);border:1px solid var(--bd);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+ol li b{font-weight:500}
+ol li p{color:var(--mid);text-wrap:pretty}
+code{font-family:'DM Mono',monospace;font-size:.92em;background:var(--sf);border:1px solid var(--bd);border-radius:5px;padding:1px 6px;white-space:nowrap}
+pre{font-family:'DM Mono',monospace;font-size:13px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;overflow-x:auto;margin-top:10px;color:var(--tx)}
+.states{display:flex;flex-direction:column;gap:22px}
+.state img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--bd)}
+.state .cap{font-size:14px;color:var(--mid);margin-top:8px;text-wrap:pretty}
+.state .cap b{color:var(--tx);font-weight:500}
+.state.panel img{max-width:380px}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:8px 18px;font-size:14px}
+dt{color:var(--mu)}dd{color:var(--mid);text-wrap:pretty}
+dd a,.foot a{color:var(--ac);text-decoration:none}dd a:hover,.foot a:hover{text-decoration:underline}
+.foot{margin-top:44px;padding-top:16px;border-top:1px solid var(--bd);font-size:13px;color:var(--mu);display:flex;gap:18px;flex-wrap:wrap}
+@media(max-width:480px){dl{grid-template-columns:1fr;gap:2px 0}dt{margin-top:10px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:6px}
+</style>
+</head>
+<body>
+<main class="wrap">
+<a class="back" href="../"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>World Clock</a>
+
+<h1>World Clock for the Mac</h1>
+<p class="lede">The same clock, without the browser. A small window that stays on top of whatever you are doing, collapses to one row of times, and down to a single time when you want it out of the&nbsp;way.</p>
+
+<div class="get">
+  <a class="btn" href="https://github.com/zapiolaesteban/world-clock/releases/latest/download/World-Clock-mac.zip" download><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download for Mac</a>
+  <span class="meta">macOS 13 or newer · Apple silicon and Intel · 160&nbsp;KB</span>
+</div>
+
+<h2>Three steps</h2>
+<ol>
+  <li><div><b>Unzip and drag <span class="mono">World Clock</span> into Applications.</b><p>Then open it. A small clock appears in your menu bar and the panel opens.</p></div></li>
+  <li><div><b>The first open needs one extra click.</b><p>The app is not signed with an Apple developer account, so macOS will say it could not verify it and refuse. Open <b>System Settings</b>, then <b>Privacy &amp; Security</b>, scroll down, and click <b>Open Anyway</b>. That happens once. If you prefer the Terminal:</p><pre>xattr -dr com.apple.quarantine "/Applications/World Clock.app"</pre></div></li>
+  <li><div><b>Make it start with your Mac.</b><p>Right-click the clock in the menu bar and turn on <b>Launch at Login</b>. From then on it is just there.</p></div></li>
+</ol>
+
+<h2>What you get</h2>
+<div class="states">
+  <figure class="state panel"><img src="screenshots/expanded.png" alt="The panel: home time at the top, four city rows with projected and current times, and the time projector below" width="1000" height="1267" loading="lazy" decoding="async"><figcaption class="cap"><b>The panel.</b> Your cities, the time projector, the typed time. Tap the digits and type <span class="mono">3pm</span>. Resize it, move it, it stays on top. The yellow button collapses it.</figcaption></figure>
+  <figure class="state"><img src="screenshots/strip.png" alt="The strip: one dark row with three flags and times, a chevron at each end" width="1000" height="331" loading="lazy" decoding="async"><figcaption class="cap"><b>The strip.</b> Home and your top two cities in one row, tucked against the edge of the screen. The right chevron opens the panel, the left one shrinks it further.</figcaption></figure>
+  <figure class="state"><img src="screenshots/single.png" alt="The one-time pill: a single flag and time with one chevron" width="1000" height="400" loading="lazy" decoding="async"><figcaption class="cap"><b>One time.</b> A flag and a clock. Scroll over it to step through your other cities. Click it to get the strip back.</figcaption></figure>
+</div>
+
+<h2>Good to know</h2>
+<dl>
+  <dt>Your cities</dt><dd>Set them once in the panel; they are kept inside the app between launches, separate from Safari.</dd>
+  <dt>Privacy</dt><dd>It loads one page, <span class="mono">estebangz.com/world-clock</span>, and nothing else. No account, no tracking.</dd>
+  <dt>Updates</dt><dd>The times and the clock itself come from the website, so improvements there show up in the app on its own. A new app build only matters when the window itself changes.</dd>
+  <dt>Remove it</dt><dd>Quit from the menu bar clock and drag the app to the Trash.</dd>
+  <dt>Built from</dt><dd>One Swift file in the <a href="https://github.com/zapiolaesteban/world-clock/tree/main/mac">world-clock repo</a>. If you would rather build it yourself, the README there is one command.</dd>
+</dl>
+
+<footer class="foot"><a href="../">Open the World Clock</a><a href="https://github.com/zapiolaesteban/world-clock/releases/latest">All releases</a></footer>
+</main>
+</body>
+</html>
