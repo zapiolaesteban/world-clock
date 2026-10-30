@@ -328,10 +328,15 @@ a.tbtn{text-decoration:none}
 body.mini .wrap{max-width:none;padding:10px 12px 12px;display:flex;flex-direction:column}
 /* glance first: cities, then the projector to type a time */
 body.mini .header{order:0;margin-bottom:10px;padding-bottom:10px}
+body.mini main{display:flex;flex-direction:column} /* the order rules below only work if main is the flex container */
 body.mini .tiles{order:1;margin-bottom:10px}
-body.mini .proj{order:2;margin-bottom:0}
+/* the widget has its own storage, separate from the browser, so cities must be editable here too */
+body.mini .add-section{order:2;display:flex;gap:8px;margin:0 0 10px}
+body.mini .add-city-btn{flex:1;margin:0;padding:9px 12px;font-size:var(--t2,13px);border-radius:10px;min-height:40px}
+body.mini .add-section .edit-pencil{border:1px dashed var(--bd);border-radius:10px;min-width:44px;min-height:40px}
+body.mini .proj{order:3;margin-bottom:0}
 body.mini .pcard-nudge{display:none}
-body.mini .hdate,body.mini .hw,body.mini .add-section,body.mini .composer,body.mini .wstrip,body.mini .section-divider,body.mini .dash-hdr,body.mini .footer,body.mini .presets,body.mini .tile-w,body.mini .tile-proj-lbl,body.mini .tile-now-lbl,body.mini .tile-now-date,body.mini .tile-sub,body.mini .tile-gmt,body.mini .mini-flag-btn,body.mini .mini-share-btn{display:none}
+body.mini .hdate,body.mini .hw,body.mini .quick-adds,body.mini .composer,body.mini .wstrip,body.mini .section-divider,body.mini .dash-hdr,body.mini .footer,body.mini .presets,body.mini .tile-w,body.mini .tile-proj-lbl,body.mini .tile-now-lbl,body.mini .tile-now-date,body.mini .tile-sub,body.mini .tile-gmt,body.mini .mini-flag-btn,body.mini .mini-share-btn{display:none}
 body.mini .proj{padding:10px 12px;margin-bottom:10px;border-radius:10px}
 body.mini .proj-head{margin-bottom:8px}
 body.mini .proj-cards{flex-direction:column;gap:6px;margin-bottom:0}
@@ -706,14 +711,17 @@ h+=`</div>`;
 
 // ---- build add-city section ----
 const quickList=QUICK_ADDS.filter(n=>!cities.find(c=>c.n===n)).slice(0,6);
+// the edit pencil lives in the dashboard header on the full page and next to "Add city" in the mini view
+const pencilHTML=cities.length>0?`<button id="edit-btn" class="edit-pencil" onclick="toggleEdit()" aria-pressed="${editMode}" aria-label="Edit cities: reorder, resize or remove" title="${editMode?'Done editing':'Edit cities'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>`:"";
 let searchHTML=`<div class="add-section">`;
 searchHTML+=`<button id="add-city-btn" class="add-city-btn" onclick="openModal()" aria-haspopup="dialog"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add city</button>`;
+if(MINI)searchHTML+=pencilHTML;
 if(quickList.length>0){searchHTML+=`<div class="quick-adds">`;quickList.forEach(n=>{const c=CATALOG.find(x=>x.n===n);if(c)searchHTML+=`<button id="qa-${slug(n)}" class="quick-chip" onclick="addCity('${n.replace(/'/g,"\\'")}')" aria-label="Add ${n}"><span aria-hidden="true">${c.f}</span>+ ${n}</button>`});searchHTML+=`</div>`}
 searchHTML+=`</div>`;
 
 // ---- build tiles section ----
 let tilesHTML=`<div class="section-divider"><div class="section-divider-line"></div></div>`;
-tilesHTML+=`<div class="dash-hdr"><div class="dash-hdr-left"><h2 class="dash-title">World Clock Dashboard</h2><p class="dash-sub">Live times across ${cities.length} ${cities.length===1?"city":"cities"} \u00b7 projected to your selected time</p></div>${cities.length>0?`<button id="edit-btn" class="edit-pencil" onclick="toggleEdit()" aria-pressed="${editMode}" aria-label="Edit cities: reorder, resize or remove" title="${editMode?'Done editing':'Edit cities'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>`:""}</div>`;
+tilesHTML+=`<div class="dash-hdr"><div class="dash-hdr-left"><h2 class="dash-title">World Clock Dashboard</h2><p class="dash-sub">Live times across ${cities.length} ${cities.length===1?"city":"cities"} \u00b7 projected to your selected time</p></div>${MINI?"":pencilHTML}</div>`;
 tilesHTML+=`<div class="tiles" id="tiles-grid">`;
 if(cities.length===0)tilesHTML+=`<div class="empty">No cities yet. Add one above and it shows up here with its local time and your projected time.</div>`;
 cities.forEach((city,i)=>{
@@ -762,7 +770,7 @@ else{h+=searchHTML+tilesHTML+composerHTML}
 
 h+=`<div class="wstrip"><span>Weather ${geoOptIn?"near you":"for "+home.name}${weatherTS?", updated "+weatherTS:", loading"}</span><span class="wstrip-actions">${(!geoOptIn&&navigator.geolocation)?'<button id="geo-btn" class="rbtn" onclick="useMyLocation()" title="Weather for where you are, not the city centre">Use my location</button>':''}<button id="w-refresh" class="rbtn" onclick="fetchAllWeather()">Refresh</button></span></div>`;
 if(editMode)h+=`<button id="done-btn" class="done-float" onclick="toggleEdit()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Done</button>`;
-h+=`</main><footer class="footer">All times update live &middot; Offsets from ${home.name} &middot; <a href="mac/" style="color:var(--mu)">Get the Mac app</a> &middot; v2.8.1</footer>`;
+h+=`</main><footer class="footer">All times update live &middot; Offsets from ${home.name} &middot; <a href="mac/" style="color:var(--mu)">Get the Mac app</a> &middot; v2.8.2</footer>`;
 
 // ---- modal (city picker) ----
 if(modalOpen){h+=buildModalHTML()}
@@ -1131,7 +1139,9 @@ drag.el.style.cssText="";
 if(drag.placeholder&&drag.placeholder.parentNode)drag.placeholder.parentNode.removeChild(drag.placeholder);
 drag=null;interacting=false;render()}
 
-try{const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;const meta=TZ_META[tz];if(meta){home={name:meta.name,tz,flag:meta.flag,lat:meta.lat,lon:meta.lon}}else{const city=tz.split("/").pop().replace(/_/g," ");home={...HOME_DEFAULT,name:city,tz,flag:CATALOG.find(x=>x.t===tz)?.f||"\ud83c\udf10"}}}catch{}
+// some Macs report the older names for a zone; map them so the home city gets its flag instead of a globe
+const TZ_ALIAS={"Asia/Calcutta":"Asia/Kolkata","Asia/Saigon":"Asia/Ho_Chi_Minh","Asia/Katmandu":"Asia/Kathmandu","Asia/Rangoon":"Asia/Yangon","Asia/Macao":"Asia/Macau","Asia/Dacca":"Asia/Dhaka","Europe/Kiev":"Europe/Kyiv","America/Buenos_Aires":"America/Argentina/Buenos_Aires","Atlantic/Faeroe":"Atlantic/Faroe"};
+try{let tz=Intl.DateTimeFormat().resolvedOptions().timeZone;tz=TZ_ALIAS[tz]||tz;const meta=TZ_META[tz];if(meta){home={name:meta.name,tz,flag:meta.flag,lat:meta.lat,lon:meta.lon}}else{const city=tz.split("/").pop().replace(/_/g," ");home={...HOME_DEFAULT,name:city,tz,flag:CATALOG.find(x=>x.t===tz)?.f||"\ud83c\udf10"}}}catch{}
 pTime=getHHMM(home.tz);
 initCities();initCopySel();
 // restore saved setup (cities, theme, comparison set, copy prefs); fall back to the OS theme on first visit
