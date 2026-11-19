@@ -13,6 +13,13 @@ Three states, smallest last:
 - **One time.** A single flag and time, your home city to start, with one chevron. Scroll over
   it (trackpad or mouse wheel) to step through your other cities, one per swipe or notch.
 
+Or none of them: **In the Menu Bar**. Right-click the menu bar clock and choose it, and the clock
+symbol becomes the time itself, your home flag and time, with nothing floating on the screen.
+Click it and the full panel drops down underneath; click again and it goes away. Scroll over it to
+step through your other cities. **Show Three Times**, just under it in the same menu, shows three
+at once (on a crowded menu bar, or beside the notch, macOS hides items that do not fit, so one is
+the default). Pick Full Panel, Strip or One Time in that menu to go back to a floating window.
+
 Moving between them: the yellow button (or a double-click on the title bar) collapses the panel to
 the strip. On the strip, the down chevron at the right opens the panel; the inward chevron at the
 left, or a click on the times, goes to the one time. On the one time, its chevron, or a click,
@@ -67,6 +74,7 @@ the panel opens. From then on:
 | You want | Do |
 |---|---|
 | Show or hide the panel | Left-click the menu bar clock |
+| The time in the menu bar, nothing floating | Right-click the clock, **In the Menu Bar** |
 | Collapse to the strip | Yellow button, or double-click the title bar |
 | Expand the strip | Click it |
 | Move the strip | Drag it |
@@ -95,7 +103,8 @@ and opens any link you click in your default browser.
 
 ## Where it keeps things
 
-- Position, size and expanded-or-strip state: `defaults` under `com.estebangz.worldclock`.
+- Position, size, state and the menu bar's copy of the city list: `defaults` under
+  `com.estebangz.worldclock`.
 - The page's own storage (cities, theme, settings): the app's WebKit container in
   `~/Library/WebKit/com.estebangz.worldclock`, separate from Safari.
 
