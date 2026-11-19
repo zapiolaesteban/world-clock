@@ -18,8 +18,8 @@
 // the page, so index.html stays exactly the web version.
 //
 // Or nothing floats at all: "In the Menu Bar" (right-click menu) puts the time in the menu bar
-// itself, one flag and time or three. A click drops the panel down under it, a second click puts
-// it away, and a scroll over the time steps through the cities.
+// itself, one flag and time or three. A click or a scroll over it steps through the cities, and
+// the city it is left on is remembered. The panel opens from the right-click menu, under the time.
 
 import Cocoa
 import WebKit
@@ -140,7 +140,9 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
     // In the menu bar: the times live in the status item and the panel only drops down on a click.
     var inMenuBar = UserDefaults.standard.bool(forKey: "menuBar")
     var barThree = UserDefaults.standard.bool(forKey: "menuBarThree")
-    var barIndex = 0
+    // Which city the menu bar shows. Starts on the first city, not home: the Mac's own clock,
+    // a little further along the menu bar, already shows home.
+    var barIndex = UserDefaults.standard.object(forKey: "menuBarIndex") as? Int ?? 1
     var barStepper = ScrollStepper()
     // Flag and time zone of home and each city, as last read from the page. Kept between launches
     // so the menu bar has its times before the page has loaded.
@@ -196,8 +198,7 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
         // A scroll over the time in the menu bar steps through the cities.
         NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [unowned self] event in
             if inMenuBar, event.window == statusItem.button?.window, let direction = barStepper.step(for: event) {
-                barIndex += direction
-                drawBar()
+                stepBar(direction)
             }
             return event
         }
@@ -257,9 +258,17 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
 
     // MARK: Menu bar
 
-    /// Left click shows or hides the panel. Right click opens the menu.
+    /// Right click opens the menu. Left click shows or hides the panel, or, when the time is in
+    /// the menu bar, moves it on to the next city.
     @objc func statusClicked() {
-        if NSApp.currentEvent?.type == .rightMouseUp { showMenu() } else { toggle() }
+        if NSApp.currentEvent?.type == .rightMouseUp { showMenu() } else if inMenuBar { stepBar(1) } else { toggle() }
+    }
+
+    func stepBar(_ direction: Int) {
+        let count = max(zones.count, 1)
+        barIndex = (((barIndex + direction) % count) + count) % count
+        UserDefaults.standard.set(barIndex, forKey: "menuBarIndex")
+        drawBar()
     }
 
     @objc func toggle() {
@@ -289,7 +298,6 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
 
     func setMenuBar(_ on: Bool) {
         inMenuBar = on
-        barIndex = 0
         UserDefaults.standard.set(on, forKey: "menuBar")
         drawBar()
     }

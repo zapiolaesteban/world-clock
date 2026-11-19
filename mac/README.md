@@ -14,9 +14,10 @@ Three states, smallest last:
   it (trackpad or mouse wheel) to step through your other cities, one per swipe or notch.
 
 Or none of them: **In the Menu Bar**. Right-click the menu bar clock and choose it, and the clock
-symbol becomes the time itself, your home flag and time, with nothing floating on the screen.
-Click it and the full panel drops down underneath; click again and it goes away. Scroll over it to
-step through your other cities. **Show Three Times**, just under it in the same menu, shows three
+symbol becomes the time itself, a flag and a time, with nothing floating on the screen. It starts
+on your first city (the Mac's own clock already shows home). Click it, or scroll over it, to move
+to the next city; it stays on the one you leave it on. To open the full panel, right-click it and
+choose **Show World Clock**: the panel drops down underneath. **Show Three Times**, just under it in the same menu, shows three
 at once (on a crowded menu bar, or beside the notch, macOS hides items that do not fit, so one is
 the default). Pick Full Panel, Strip or One Time in that menu to go back to a floating window.
 
