@@ -1,5 +1,15 @@
 # World Clock for the Mac
 
+**TL;DR:** a tiny Mac app that puts a second (or third) time zone in your menu bar. Click it to step
+through your cities, right-click for options. About 160 KB, nothing to sign in to.
+
+1. **Download** `World-Clock-mac.zip` from the [latest release](https://github.com/zapiolaesteban/world-clock/releases/latest), unzip it, and drag **World Clock** into Applications.
+2. **Open it.** macOS will say it can't verify the app (it isn't signed). Go to **System Settings > Privacy & Security**, scroll down, and click **Open Anyway**. Once only.
+3. **Right-click the clock icon** in the menu bar and choose **In the Menu Bar**, then **Launch at Login**.
+
+Needs macOS 13 or newer. Apple silicon and Intel. A setup page with the same steps and screenshots:
+[estebangz.com/world-clock/mac](https://www.estebangz.com/world-clock/mac/).
+
 A small floating panel that keeps the World Clock on top of whatever you are working in. It is the
 web app's compact view (`?mini=1`) inside a native window, so it is always the same code as the
 site: the city list, the time projector and the typed time all work exactly as they do in the
@@ -12,6 +22,14 @@ Three states, smallest last:
   a chevron at each end. It tucks against the nearer side of whichever screen it is on.
 - **One time.** A single flag and time, your home city to start, with one chevron. Scroll over
   it (trackpad or mouse wheel) to step through your other cities, one per swipe or notch.
+
+Or none of them: **In the Menu Bar**. Right-click the menu bar clock and choose it, and the clock
+symbol becomes the time itself, a flag and a time, with nothing floating on the screen. It starts
+on your first city (the Mac's own clock already shows home). Click it, or scroll over it, to move
+to the next city; it stays on the one you leave it on. To open the full panel, right-click it and
+choose **Show World Clock**: the panel drops down underneath. **Show Three Times**, just under it in the same menu, shows three
+at once (on a crowded menu bar, or beside the notch, macOS hides items that do not fit, so one is
+the default). Pick Full Panel, Strip or One Time in that menu to go back to a floating window.
 
 Moving between them: the yellow button (or a double-click on the title bar) collapses the panel to
 the strip. On the strip, the down chevron at the right opens the panel; the inward chevron at the
@@ -67,6 +85,7 @@ the panel opens. From then on:
 | You want | Do |
 |---|---|
 | Show or hide the panel | Left-click the menu bar clock |
+| The time in the menu bar, nothing floating | Right-click the clock, **In the Menu Bar** |
 | Collapse to the strip | Yellow button, or double-click the title bar |
 | Expand the strip | Click it |
 | Move the strip | Drag it |
@@ -95,7 +114,8 @@ and opens any link you click in your default browser.
 
 ## Where it keeps things
 
-- Position, size and expanded-or-strip state: `defaults` under `com.estebangz.worldclock`.
+- Position, size, state and the menu bar's copy of the city list: `defaults` under
+  `com.estebangz.worldclock`.
 - The page's own storage (cities, theme, settings): the app's WebKit container in
   `~/Library/WebKit/com.estebangz.worldclock`, separate from Safari.
 

@@ -16,6 +16,10 @@
 // on the single time the outward chevron (or a click) goes back to the strip. Strip and single
 // tuck against the nearer side of their screen. They are drawn by a script this app injects into
 // the page, so index.html stays exactly the web version.
+//
+// Or nothing floats at all: "In the Menu Bar" (right-click menu) puts the time in the menu bar
+// itself, one flag and time or three. A click or a scroll over it steps through the cities, and
+// the city it is left on is remembered. The panel opens from the right-click menu, under the time.
 
 import Cocoa
 import WebKit
@@ -86,12 +90,28 @@ final class ClockPanel: NSPanel {
     override func zoom(_ sender: Any?) { onMinimize?() }
 }
 
+/// One step per trackpad gesture (after a little travel, momentum ignored) or per wheel notch.
+struct ScrollStepper {
+    private var stepped = false, travel: CGFloat = 0
+    mutating func step(for event: NSEvent) -> Int? {
+        if event.phase == .began { travel = 0; stepped = false }
+        if event.momentumPhase != [] { return nil }
+        travel += event.scrollingDeltaY
+        let wheelNotch = event.phase == [] && event.momentumPhase == []
+        guard wheelNotch || (!stepped && abs(travel) > 24) else { return nil }
+        let direction = travel < 0 ? 1 : -1
+        stepped = true
+        travel = 0
+        return direction
+    }
+}
+
 /// Covers the web view while collapsed. Drag moves the panel; a click on the right end (the
 /// chevron) opens the panel, a click elsewhere toggles strip and single; a scroll steps cities.
 final class StripView: NSView {
     var onClick: (() -> Void)?, onChevron: (() -> Void)?, onStep: ((Int) -> Void)?
     var chevronWidth: CGFloat = 0
-    private var dragged = false, stepped = false, travel: CGFloat = 0
+    private var dragged = false, stepper = ScrollStepper()
     override func mouseDown(with event: NSEvent) { dragged = false }
     override func mouseDragged(with event: NSEvent) {
         if !dragged { dragged = true; window?.performDrag(with: event) }
@@ -100,17 +120,8 @@ final class StripView: NSView {
         guard !dragged else { return }
         if convert(event.locationInWindow, from: nil).x > bounds.width - chevronWidth { onChevron?() } else { onClick?() }
     }
-    /// One step per trackpad gesture (after a little travel, momentum ignored) or per wheel notch.
     override func scrollWheel(with event: NSEvent) {
-        if event.phase == .began { travel = 0; stepped = false }
-        if event.momentumPhase != [] { return }
-        travel += event.scrollingDeltaY
-        let wheelNotch = event.phase == [] && event.momentumPhase == []
-        if wheelNotch || (!stepped && abs(travel) > 24) {
-            onStep?(travel < 0 ? 1 : -1)
-            stepped = true
-            travel = 0
-        }
+        if let direction = stepper.step(for: event) { onStep?(direction) }
     }
     override func resetCursorRects() { addCursorRect(bounds, cursor: .pointingHand) }
     override func accessibilityPerformPress() -> Bool { onClick?(); return true }
@@ -126,6 +137,22 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
     var webView: WKWebView!
     var mode = Mode.panel
     var cityIndex = 0
+    // In the menu bar: the times live in the status item and the panel only drops down on a click.
+    var inMenuBar = UserDefaults.standard.bool(forKey: "menuBar")
+    var barThree = UserDefaults.standard.bool(forKey: "menuBarThree")
+    // Which city the menu bar shows. Starts on the first city, not home: the Mac's own clock,
+    // a little further along the menu bar, already shows home.
+    var barIndex = UserDefaults.standard.object(forKey: "menuBarIndex") as? Int ?? 1
+    var barStepper = ScrollStepper()
+    // Flag and time zone of home and each city, as last read from the page. Kept between launches
+    // so the menu bar has its times before the page has loaded.
+    var zones = UserDefaults.standard.array(forKey: "zones") as? [[String: String]] ?? []
+    let barClock: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "HH:mm"
+        return f
+    }()
 
     func applicationDidFinishLaunching(_ note: Notification) {
         panel.title = "World Clock"
@@ -136,7 +163,7 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
         panel.backgroundColor = NSColor(red: 0.047, green: 0.047, blue: 0.039, alpha: 1) // the page's dark paper
         panel.standardWindowButton(.zoomButton)?.isHidden = true
         panel.delegate = self
-        panel.onMinimize = { [unowned self] in setMode(.strip) }
+        panel.onMinimize = { [unowned self] in if inMenuBar { panel.orderOut(nil) } else { setMode(.strip) } }
         if !panel.setFrameUsingName(frameName) { panel.center() }   // restore last frame, else centre
         _ = panel.setFrameAutosaveName(frameName)                   // keep saving it (this re-applies it too)
         let f = panel.frame   // a saved frame that is absurd for the panel (zoomed, or a strip's) starts over
@@ -164,12 +191,25 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
         panel.contentView!.addSubview(strip)
 
         let button = statusItem.button!
-        button.image = NSImage(systemSymbolName: "clock", accessibilityDescription: "World Clock")
+        button.font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
         button.target = self
         button.action = #selector(statusClicked)
         _ = button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+        // A scroll over the time in the menu bar steps through the cities.
+        NSEvent.addLocalMonitorForEvents(matching: .scrollWheel) { [unowned self] event in
+            if inMenuBar, event.window == statusItem.button?.window, let direction = barStepper.step(for: event) {
+                stepBar(direction)
+            }
+            return event
+        }
+        // The menu bar time ticks natively, so it keeps going while the panel is put away.
+        let timer = Timer(timeInterval: 1, target: self, selector: #selector(tick), userInfo: nil, repeats: true)
+        RunLoop.main.add(timer, forMode: .common)
+        drawBar()
 
-        // Quit collapsed, come back collapsed. The panel keeps the frame restored above.
+        // Quit collapsed, come back collapsed. The panel keeps the frame restored above. In the
+        // menu bar nothing opens at launch; the time up there is the whole point.
+        if inMenuBar { return }
         if let m = Mode(rawValue: UserDefaults.standard.integer(forKey: "mode")), m != .panel { setMode(m, atLaunch: true) }
         panel.orderFrontRegardless()
     }
@@ -218,25 +258,119 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
 
     // MARK: Menu bar
 
-    /// Left click shows or hides the panel. Right click opens the menu.
+    /// Right click opens the menu. Left click shows or hides the panel, or, when the time is in
+    /// the menu bar, moves it on to the next city.
     @objc func statusClicked() {
-        if NSApp.currentEvent?.type == .rightMouseUp { showMenu() } else { toggle() }
+        if NSApp.currentEvent?.type == .rightMouseUp { showMenu() } else if inMenuBar { stepBar(1) } else { toggle() }
+    }
+
+    func stepBar(_ direction: Int) {
+        let count = max(zones.count, 1)
+        barIndex = (((barIndex + direction) % count) + count) % count
+        UserDefaults.standard.set(barIndex, forKey: "menuBarIndex")
+        drawBar()
     }
 
     @objc func toggle() {
-        if panel.isVisible { panel.orderOut(nil) } else { panel.makeKeyAndOrderFront(nil) }
+        if panel.isVisible { panel.orderOut(nil); return }
+        if inMenuBar { dropUnderBar() }
+        panel.makeKeyAndOrderFront(nil)
     }
 
-    @objc func pickMode(_ sender: NSMenuItem) { setMode(Mode(rawValue: sender.tag)!); panel.makeKeyAndOrderFront(nil) }
+    @objc func pickMode(_ sender: NSMenuItem) {
+        setMenuBar(false)
+        setMode(Mode(rawValue: sender.tag)!)
+        panel.makeKeyAndOrderFront(nil)
+    }
+
+    /// Into the menu bar: the floating window goes away and comes back only as the full panel.
+    @objc func pickMenuBar() {
+        setMenuBar(true)
+        if mode != .panel { setMode(.panel) }
+        panel.orderOut(nil)
+    }
+
+    @objc func toggleBarThree() {
+        barThree.toggle()
+        UserDefaults.standard.set(barThree, forKey: "menuBarThree")
+        drawBar()
+    }
+
+    func setMenuBar(_ on: Bool) {
+        inMenuBar = on
+        UserDefaults.standard.set(on, forKey: "menuBar")
+        drawBar()
+    }
+
+    /// Each second: redraw the menu bar time and, while the panel is open (the only place the
+    /// city list can change), read the list back from the page.
+    @objc func tick() {
+        if panel.isVisible || zones.isEmpty { readZones() }
+        drawBar()
+    }
+
+    func readZones() {
+        let js = "JSON.stringify([{f:home.flag,t:home.tz}].concat(cities.map(c=>({f:c.f||'\u{1F310}',t:c.t}))))"
+        webView.evaluateJavaScript(js) { [weak self] result, _ in
+            guard let self, let text = result as? String, let data = text.data(using: .utf8),
+                  let list = (try? JSONSerialization.jsonObject(with: data)) as? [[String: String]],
+                  !list.isEmpty, list != self.zones else { return }
+            self.zones = list
+            UserDefaults.standard.set(list, forKey: "zones")
+            self.drawBar()
+        }
+    }
+
+    /// The status item: a clock symbol while the window floats, the times themselves in the menu bar.
+    func drawBar() {
+        guard let button = statusItem.button else { return }
+        var title = ""
+        if inMenuBar {
+            let now = Date()
+            let count = zones.isEmpty ? 0 : min(barThree ? 3 : 1, zones.count)
+            let shown = (0..<count).map { zones[(((barIndex + $0) % zones.count) + zones.count) % zones.count] }
+            title = shown.map { zone -> String in
+                barClock.timeZone = TimeZone(identifier: zone["t"] ?? "") ?? .current
+                return (zone["f"] ?? "") + " " + barClock.string(from: now)
+            }.joined(separator: "   ")
+            if title.isEmpty {   // first launch, before the page has answered: this Mac's own time
+                barClock.timeZone = .current
+                title = barClock.string(from: now)
+            }
+        }
+        if button.title == title, (button.image == nil) == inMenuBar { return }
+        statusItem.length = inMenuBar ? NSStatusItem.variableLength : NSStatusItem.squareLength
+        button.image = inMenuBar ? nil : NSImage(systemSymbolName: "clock", accessibilityDescription: "World Clock")
+        button.title = title
+    }
+
+    /// Opens the panel directly under the time in the menu bar, kept on that screen.
+    func dropUnderBar() {
+        guard let anchor = statusItem.button?.window else { return }
+        var frame = panel.frame
+        frame.origin = NSPoint(x: anchor.frame.midX - frame.width / 2, y: anchor.frame.minY - frame.height - 6)
+        if let visible = (anchor.screen ?? NSScreen.main)?.visibleFrame {
+            frame.origin.x = min(max(frame.origin.x, visible.minX + 8), visible.maxX - frame.width - 8)
+            frame.origin.y = max(frame.origin.y, visible.minY + 8)
+        }
+        panel.setFrame(frame, display: true)
+    }
 
     func showMenu() {
         let menu = NSMenu()
         menu.addItem(withTitle: panel.isVisible ? "Hide World Clock" : "Show World Clock", action: #selector(toggle), keyEquivalent: "")
         menu.addItem(.separator())
+        let bar = menu.addItem(withTitle: "In the Menu Bar", action: #selector(pickMenuBar), keyEquivalent: "")
+        bar.state = inMenuBar ? .on : .off
+        if inMenuBar {
+            let three = menu.addItem(withTitle: "Show Three Times", action: #selector(toggleBarThree), keyEquivalent: "")
+            three.state = barThree ? .on : .off
+            three.indentationLevel = 1
+        }
         for (title, m) in [("Full Panel", Mode.panel), ("Strip", .strip), ("One Time", .single)] {
             let item = menu.addItem(withTitle: title, action: #selector(pickMode), keyEquivalent: "")
             item.tag = m.rawValue
-            item.state = m == mode ? .on : .off
+            item.state = !inMenuBar && m == mode ? .on : .off
         }
         menu.addItem(.separator())
         menu.addItem(withTitle: "Reload", action: #selector(reload), keyEquivalent: "")
@@ -277,7 +411,7 @@ final class App: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNavigation
     }
 
     /// After every load (first launch, Reload), put the page in whichever state the panel is in.
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { syncPage() }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { syncPage(); readZones() }
 
     /// Clicked links (the arrow to the full page, anything external) open in the default browser;
     /// the panel itself only ever shows the World Clock.
