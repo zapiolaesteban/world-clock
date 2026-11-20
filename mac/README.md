@@ -1,5 +1,15 @@
 # World Clock for the Mac
 
+**TL;DR:** a tiny Mac app that puts a second (or third) time zone in your menu bar. Click it to step
+through your cities, right-click for options. About 160 KB, nothing to sign in to.
+
+1. **Download** `World-Clock-mac.zip` from the [latest release](https://github.com/zapiolaesteban/world-clock/releases/latest), unzip it, and drag **World Clock** into Applications.
+2. **Open it.** macOS will say it can't verify the app (it isn't signed). Go to **System Settings > Privacy & Security**, scroll down, and click **Open Anyway**. Once only.
+3. **Right-click the clock icon** in the menu bar and choose **In the Menu Bar**, then **Launch at Login**.
+
+Needs macOS 13 or newer. Apple silicon and Intel. A setup page with the same steps and screenshots:
+[estebangz.com/world-clock/mac](https://www.estebangz.com/world-clock/mac/).
+
 A small floating panel that keeps the World Clock on top of whatever you are working in. It is the
 web app's compact view (`?mini=1`) inside a native window, so it is always the same code as the
 site: the city list, the time projector and the typed time all work exactly as they do in the
